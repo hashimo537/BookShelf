@@ -1,0 +1,33 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Genre;
+use Illuminate\Database\Seeder;
+
+class GenreSeeder extends Seeder
+{
+    /**
+     * genres テーブルにジャンルを固定で10件投入する。
+     * firstOrCreate を使用し、name の重複を防ぐ。
+     */
+    public function run(): void
+    {
+        $genres = [
+            '小説',
+            'ビジネス',
+            '技術書',
+            '自己啓発',
+            'エッセイ',
+            '歴史',
+            '科学',
+            '芸術',
+            '料理',
+            '旅行',
+        ];
+
+        foreach ($genres as $name) {
+            Genre::firstOrCreate(['name' => $name]);
+        }
+    }
+}
