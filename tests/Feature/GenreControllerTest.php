@@ -34,6 +34,15 @@ class GenreControllerTest extends TestCase
         $response->assertViewIs('genres.index');
     }
 
+    public function test_guest_cannot_view_genre_show(): void
+    {
+        $genre = Genre::factory()->create();
+
+        $response = $this->get(route('genres.show', $genre));
+
+        $response->assertRedirect(route('login'));
+    }
+
     public function test_authenticated_user_can_view_genre_show(): void
     {
         $user = User::factory()->create();
@@ -44,6 +53,49 @@ class GenreControllerTest extends TestCase
         $response->assertOk();
         $response->assertViewIs('genres.show');
         $response->assertSee($genre->name);
+    }
+
+    // ---------------------------------------------------------------
+    // ③ ジャンル絞り込み（genres.show が該当ジャンルの書籍だけを表示するか）
+    // ---------------------------------------------------------------
+
+    public function test_genre_show_only_lists_books_belonging_to_that_genre(): void
+    {
+        $user = User::factory()->create();
+
+        $targetGenre = Genre::factory()->create(['name' => '技術書']);
+        $otherGenre = Genre::factory()->create(['name' => '小説']);
+
+        $matchingBook = Book::factory()->create(['title' => '対象ジャンルの本']);
+        $matchingBook->genres()->attach($targetGenre);
+
+        $unrelatedBook = Book::factory()->create(['title' => '無関係なジャンルの本']);
+        $unrelatedBook->genres()->attach($otherGenre);
+
+        $response = $this->actingAs($user)->get(route('genres.show', $targetGenre));
+
+        $response->assertOk();
+        $response->assertSee('対象ジャンルの本');
+        $response->assertDontSee('無関係なジャンルの本');
+    }
+
+    public function test_genre_show_paginates_books_by_ten(): void
+    {
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create();
+
+        // 11冊紐付けて、1ページ目には10冊だけ表示されることを確認する
+        $books = Book::factory()->count(11)->create();
+        foreach ($books as $book) {
+            $book->genres()->attach($genre);
+        }
+
+        $response = $this->actingAs($user)->get(route('genres.show', $genre));
+
+        $response->assertOk();
+        $response->assertViewHas('books', function ($books) {
+            return $books->count() === 10 && $books->total() === 11;
+        });
     }
 
     // ---------------------------------------------------------------
@@ -64,7 +116,6 @@ class GenreControllerTest extends TestCase
         $response = $this->actingAs($user)->post(route('genres.store'), [
             'name' => 'ミステリー',
         ]);
-
 
         $this->assertDatabaseHas('genres', [
             'name' => 'ミステリー',
@@ -91,7 +142,7 @@ class GenreControllerTest extends TestCase
             'name' => '',
         ]);
 
-        $response->assertSessionHasErrors('name');
+        $response->assertSessionHasErrors(['name' => 'ジャンル名は必須です。']);
         $this->assertDatabaseCount('genres', 0);
     }
 
@@ -103,9 +154,10 @@ class GenreControllerTest extends TestCase
             'name' => str_repeat('あ', 256),
         ]);
 
-        $response->assertSessionHasErrors('name');
+        $response->assertSessionHasErrors(['name' => '255文字以内で入力してください。']);
     }
 
+    // ① 重複登録エラーの文言検証
     public function test_store_fails_when_name_already_exists(): void
     {
         $user = User::factory()->create();
@@ -115,12 +167,24 @@ class GenreControllerTest extends TestCase
             'name' => '小説',
         ]);
 
-        $response->assertSessionHasErrors('name');
+        $response->assertSessionHasErrors([
+            'name' => 'このジャンル名は既に使用されています。',
+        ]);
+        $this->assertDatabaseCount('genres', 1); // 重複分は登録されていない
     }
 
     // ---------------------------------------------------------------
     // 編集・更新（所有者制限なし：PM確認済み）
     // ---------------------------------------------------------------
+
+    public function test_guest_cannot_view_edit_page(): void
+    {
+        $genre = Genre::factory()->create();
+
+        $response = $this->get(route('genres.edit', $genre));
+
+        $response->assertRedirect(route('login'));
+    }
 
     public function test_any_authenticated_user_can_view_edit_page(): void
     {
@@ -165,6 +229,7 @@ class GenreControllerTest extends TestCase
         $this->assertDatabaseMissing('genres', ['name' => 'ゲストによる更新']);
     }
 
+    // ① 重複登録エラーの文言検証（更新時）
     public function test_update_fails_when_name_duplicates_another_genre(): void
     {
         $user = User::factory()->create();
@@ -175,7 +240,9 @@ class GenreControllerTest extends TestCase
             'name' => '技術書', // 他のジャンルと重複
         ]);
 
-        $response->assertSessionHasErrors('name');
+        $response->assertSessionHasErrors([
+            'name' => 'このジャンル名は既に使用されています。',
+        ]);
     }
 
     public function test_update_succeeds_when_name_is_unchanged(): void

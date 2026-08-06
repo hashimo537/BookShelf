@@ -16,6 +16,13 @@ class BookControllerTest extends TestCase
     // 公開ページ（ゲスト可）
     // ---------------------------------------------------------------
 
+    public function test_guest_can_view_top_page(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertOk();
+    }
+
     public function test_guest_can_view_book_index(): void
     {
         Book::factory()->count(3)->create();
@@ -304,5 +311,12 @@ class BookControllerTest extends TestCase
 
         $response->assertForbidden();
         $this->assertDatabaseHas('books', ['id' => $book->id]);
+    }
+
+    public function test_non_existing_book_returns_404(): void
+    {
+        $response = $this->get('/books/999999');
+
+        $response->assertNotFound();
     }
 }

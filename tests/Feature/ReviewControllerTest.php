@@ -242,4 +242,52 @@ class ReviewControllerTest extends TestCase
         $response->assertRedirect(route('login'));
         $this->assertDatabaseHas('reviews', ['id' => $review->id]);
     }
+
+    // ---------------------------------------------------------------
+    // 平均点
+    // ---------------------------------------------------------------
+
+    public function test_book_average_rating_is_updated_after_review_posted(): void
+    {
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        $book = Book::factory()->create();
+
+        Review::factory()->create([
+            'book_id' => $book->id,
+            'user_id' => $user1->id,
+            'rating' => 4,
+        ]);
+
+        $this->actingAs($user2)->post(route('reviews.store', $book), [
+            'rating' => 2,
+            'comment' => '普通でした',
+        ]);
+
+        $book->refresh();
+
+        $average = $book->reviews()->avg('rating');
+
+        $response = $this->get(route('books.show', $book));
+
+        $response->assertSee('3.0');
+
+        $this->assertEquals(3.0, (float) $average);
+
+    }
+
+
+    // ---------------------------------------------------------------
+    // ゲストは編集画面に入れない
+    // ---------------------------------------------------------------
+
+    public function test_guest_cannot_view_edit_page(): void
+    {
+        $review = Review::factory()->create();
+
+        $response = $this->get(route('reviews.edit', $review));
+
+        $response->assertRedirect(route('login'));
+    }
 }
