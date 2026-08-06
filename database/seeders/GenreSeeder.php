@@ -3,16 +3,15 @@
 namespace Database\Seeders;
 
 use App\Models\Genre;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class GenreSeeder extends Seeder
 {
-    /**
-     * genres テーブルにジャンルを固定で10件投入する。
-     * firstOrCreate を使用し、name の重複を防ぐ。
-     */
     public function run(): void
     {
+        $registeredBy = User::first();
+
         $genres = [
             '小説',
             'ビジネス',
@@ -27,7 +26,10 @@ class GenreSeeder extends Seeder
         ];
 
         foreach ($genres as $name) {
-            Genre::firstOrCreate(['name' => $name]);
+            Genre::firstOrCreate(
+                ['name' => $name],
+                ['user_id' => $registeredBy->id] // ← ここでuser_idを渡している
+            );
         }
     }
 }
