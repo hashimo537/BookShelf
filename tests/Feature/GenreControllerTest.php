@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\Genre;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 
 class GenreControllerTest extends TestCase
@@ -16,6 +17,7 @@ class GenreControllerTest extends TestCase
     // 一覧・詳細（認証必須・所有者制限なし）
     // ---------------------------------------------------------------
 
+    #[TestDox('未ログイン状態ではジャンル一覧にアクセスできない')]
     public function test_guest_cannot_view_genre_index(): void
     {
         $response = $this->get(route('genres.index'));
@@ -23,6 +25,7 @@ class GenreControllerTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
+    #[TestDox('ログイン済みユーザーはジャンル一覧を表示できる')]
     public function test_authenticated_user_can_view_genre_index(): void
     {
         $user = User::factory()->create();
@@ -34,6 +37,7 @@ class GenreControllerTest extends TestCase
         $response->assertViewIs('genres.index');
     }
 
+    #[TestDox('未ログイン状態ではジャンル詳細にアクセスできない')]
     public function test_guest_cannot_view_genre_show(): void
     {
         $genre = Genre::factory()->create();
@@ -43,6 +47,7 @@ class GenreControllerTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
+    #[TestDox('ログイン済みユーザーはジャンル詳細を表示できる')]
     public function test_authenticated_user_can_view_genre_show(): void
     {
         $user = User::factory()->create();
@@ -56,9 +61,10 @@ class GenreControllerTest extends TestCase
     }
 
     // ---------------------------------------------------------------
-    // ③ ジャンル絞り込み（genres.show が該当ジャンルの書籍だけを表示するか）
+    // ジャンル絞り込み（genres.show が該当ジャンルの書籍だけを表示するか）
     // ---------------------------------------------------------------
 
+    #[TestDox('ジャンル詳細画面は、そのジャンルに紐づく書籍だけを表示する')]
     public function test_genre_show_only_lists_books_belonging_to_that_genre(): void
     {
         $user = User::factory()->create();
@@ -79,6 +85,7 @@ class GenreControllerTest extends TestCase
         $response->assertDontSee('無関係なジャンルの本');
     }
 
+    #[TestDox('ジャンル詳細画面の書籍一覧は10件ずつページネーションされる')]
     public function test_genre_show_paginates_books_by_ten(): void
     {
         $user = User::factory()->create();
@@ -102,6 +109,7 @@ class GenreControllerTest extends TestCase
     // 登録（store）
     // ---------------------------------------------------------------
 
+    #[TestDox('未ログイン状態ではジャンル登録画面にアクセスできない')]
     public function test_guest_cannot_view_create_page(): void
     {
         $response = $this->get(route('genres.create'));
@@ -109,6 +117,7 @@ class GenreControllerTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
+    #[TestDox('ログイン済みユーザーはジャンルを登録できる')]
     public function test_authenticated_user_can_store_genre(): void
     {
         $user = User::factory()->create();
@@ -124,6 +133,7 @@ class GenreControllerTest extends TestCase
         $response->assertRedirect(route('genres.index'));
     }
 
+    #[TestDox('未ログイン状態ではジャンルを登録できない')]
     public function test_guest_cannot_store_genre(): void
     {
         $response = $this->post(route('genres.store'), [
@@ -134,6 +144,7 @@ class GenreControllerTest extends TestCase
         $this->assertDatabaseCount('genres', 0);
     }
 
+    #[TestDox('ジャンル名が未入力の場合は登録に失敗する')]
     public function test_store_fails_when_name_is_missing(): void
     {
         $user = User::factory()->create();
@@ -146,6 +157,7 @@ class GenreControllerTest extends TestCase
         $this->assertDatabaseCount('genres', 0);
     }
 
+    #[TestDox('ジャンル名が255文字を超える場合は登録に失敗する')]
     public function test_store_fails_when_name_exceeds_max_length(): void
     {
         $user = User::factory()->create();
@@ -157,7 +169,7 @@ class GenreControllerTest extends TestCase
         $response->assertSessionHasErrors(['name' => '255文字以内で入力してください。']);
     }
 
-    // ① 重複登録エラーの文言検証
+    #[TestDox('既に存在するジャンル名で登録しようとすると、重複エラーの文言付きで失敗する')]
     public function test_store_fails_when_name_already_exists(): void
     {
         $user = User::factory()->create();
@@ -177,6 +189,7 @@ class GenreControllerTest extends TestCase
     // 編集・更新（所有者制限なし：PM確認済み）
     // ---------------------------------------------------------------
 
+    #[TestDox('未ログイン状態ではジャンル編集画面にアクセスできない')]
     public function test_guest_cannot_view_edit_page(): void
     {
         $genre = Genre::factory()->create();
@@ -186,6 +199,7 @@ class GenreControllerTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
+    #[TestDox('作成者本人でなくても、ログイン済みなら誰でもジャンル編集画面を開ける')]
     public function test_any_authenticated_user_can_view_edit_page(): void
     {
         // 作成者ではない別のユーザーでも編集画面を開けることを確認
@@ -199,6 +213,7 @@ class GenreControllerTest extends TestCase
         $response->assertViewIs('genres.edit');
     }
 
+    #[TestDox('作成者本人でなくても、ログイン済みなら誰でもジャンルを更新できる')]
     public function test_any_authenticated_user_can_update_genre(): void
     {
         // 作成者ではない別のユーザーでも更新できることを確認（PM確認済み仕様）
@@ -217,6 +232,7 @@ class GenreControllerTest extends TestCase
         ]);
     }
 
+    #[TestDox('未ログイン状態ではジャンルを更新できない')]
     public function test_guest_cannot_update_genre(): void
     {
         $genre = Genre::factory()->create();
@@ -229,7 +245,7 @@ class GenreControllerTest extends TestCase
         $this->assertDatabaseMissing('genres', ['name' => 'ゲストによる更新']);
     }
 
-    // ① 重複登録エラーの文言検証（更新時）
+    #[TestDox('他のジャンルと同じ名前に更新しようとすると、重複エラーの文言付きで失敗する')]
     public function test_update_fails_when_name_duplicates_another_genre(): void
     {
         $user = User::factory()->create();
@@ -245,6 +261,7 @@ class GenreControllerTest extends TestCase
         ]);
     }
 
+    #[TestDox('自分自身の現在の名前と同じ値で更新しても一意性エラーにならない')]
     public function test_update_succeeds_when_name_is_unchanged(): void
     {
         // 自分自身の現在の名前と同じ値で更新しても一意性エラーにならないことを確認
@@ -263,6 +280,7 @@ class GenreControllerTest extends TestCase
     // 削除（destroy）
     // ---------------------------------------------------------------
 
+    #[TestDox('作成者本人でなくても、ログイン済みなら未使用のジャンルを削除できる')]
     public function test_any_authenticated_user_can_delete_unused_genre(): void
     {
         $creator = User::factory()->create();
@@ -275,6 +293,7 @@ class GenreControllerTest extends TestCase
         $this->assertDatabaseMissing('genres', ['id' => $genre->id]);
     }
 
+    #[TestDox('書籍に紐づいているジャンルを削除しようとすると、例外にはならずエラーメッセージ付きで失敗する')]
     public function test_deleting_genre_still_used_by_a_book_fails_gracefully(): void
     {
         // book_genre.genre_id は restrictOnDelete() のため、
@@ -292,6 +311,7 @@ class GenreControllerTest extends TestCase
         $this->assertDatabaseHas('genres', ['id' => $genre->id]); // 削除されていない
     }
 
+    #[TestDox('未ログイン状態ではジャンルを削除できない')]
     public function test_guest_cannot_delete_genre(): void
     {
         $genre = Genre::factory()->create();

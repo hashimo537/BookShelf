@@ -5,12 +5,14 @@ namespace Tests\Feature;
 use App\Models\Book;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 
 class FavoriteControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[TestDox('ログイン済みユーザーは書籍をお気に入り登録できる')]
     public function test_authenticated_user_can_favorite_a_book(): void
     {
         $user = User::factory()->create();
@@ -25,6 +27,7 @@ class FavoriteControllerTest extends TestCase
         $response->assertRedirect();
     }
 
+    #[TestDox('お気に入り済み書籍を再登録しても重複しない（トグルで解除される）')]
     public function test_favoriting_an_already_favorited_book_does_not_duplicate(): void
     {
         // トグル方式のため、既にお気に入り済みの書籍にもう一度リクエストすると解除される
@@ -41,6 +44,7 @@ class FavoriteControllerTest extends TestCase
         ]);
     }
 
+    #[TestDox('お気に入りを解除できる')]
     public function test_authenticated_user_can_unfavorite_a_book(): void
     {
         $user = User::factory()->create();
@@ -56,6 +60,7 @@ class FavoriteControllerTest extends TestCase
         $response->assertRedirect();
     }
 
+    #[TestDox('未ログイン状態ではお気に入り登録できず、ログイン画面にリダイレクトされる')]
     public function test_guest_cannot_favorite_a_book(): void
     {
         $book = Book::factory()->create();
@@ -66,6 +71,7 @@ class FavoriteControllerTest extends TestCase
         $this->assertDatabaseCount('favorites', 0);
     }
 
+    #[TestDox('未ログイン状態ではお気に入り一覧画面にアクセスできない')]
     public function test_guest_cannot_view_favorites_index(): void
     {
         $response = $this->get(route('favorites.index'));
@@ -73,6 +79,7 @@ class FavoriteControllerTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
+    #[TestDox('お気に入り一覧には自分が登録した書籍だけが表示される')]
     public function test_favorites_index_shows_only_the_users_favorited_books(): void
     {
         $user = User::factory()->create();
@@ -94,4 +101,3 @@ class FavoriteControllerTest extends TestCase
         $response->assertDontSee('他人がお気に入りの本');
     }
 }
-

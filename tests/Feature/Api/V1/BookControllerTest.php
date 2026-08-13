@@ -7,6 +7,7 @@ use App\Models\Genre;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 
 class BookControllerTest extends TestCase
@@ -17,6 +18,7 @@ class BookControllerTest extends TestCase
     // AP01: 書籍一覧API
     // ---------------------------------------------------------------
 
+    #[TestDox('書籍一覧APIはJSON形式で200を返す')]
     public function test_book_index_returns_json_with_200(): void
     {
         Book::factory()->count(3)->create();
@@ -31,6 +33,7 @@ class BookControllerTest extends TestCase
         ]);
     }
 
+    #[TestDox('書籍一覧APIのレスポンスにはジャンル情報・平均評価・レビュー件数が正しく含まれる')]
     public function test_book_index_includes_genres_average_rating_and_review_count(): void
     {
         $book = Book::factory()->create();
@@ -51,6 +54,7 @@ class BookControllerTest extends TestCase
         $this->assertEquals(2, $target['reviews_count']);
     }
 
+    #[TestDox('書籍一覧APIはkeywordパラメータでタイトル検索できる')]
     public function test_book_index_filters_by_keyword(): void
     {
         Book::factory()->create(['title' => '吾輩は猫である']);
@@ -65,6 +69,7 @@ class BookControllerTest extends TestCase
         $this->assertFalse($titles->contains('人を動かす'));
     }
 
+    #[TestDox('書籍一覧APIはgenre_idパラメータでジャンル絞り込みができる')]
     public function test_book_index_filters_by_genre_id(): void
     {
         $targetGenre = Genre::factory()->create();
@@ -85,6 +90,7 @@ class BookControllerTest extends TestCase
         $this->assertFalse($ids->contains($unrelatedBook->id));
     }
 
+    #[TestDox('書籍一覧APIは不正なsort値を指定すると422を返す')]
     public function test_book_index_rejects_invalid_sort_value(): void
     {
         $response = $this->getJson('/api/v1/books?sort=invalid-value');
@@ -97,6 +103,7 @@ class BookControllerTest extends TestCase
     // AP02: 書籍詳細API
     // ---------------------------------------------------------------
 
+    #[TestDox('書籍詳細APIはジャンル・レビューを含むJSON形式で200を返す')]
     public function test_book_show_returns_json_with_200(): void
     {
         $book = Book::factory()->create();
@@ -120,6 +127,7 @@ class BookControllerTest extends TestCase
         $response->assertJsonFragment(['id' => $review->id]);
     }
 
+    #[TestDox('書籍詳細APIは存在しないIDを指定すると404を返す')]
     public function test_book_show_returns_404_for_nonexistent_id(): void
     {
         $response = $this->getJson('/api/v1/books/99999');
@@ -132,6 +140,7 @@ class BookControllerTest extends TestCase
     // AP03: 書籍登録API
     // ---------------------------------------------------------------
 
+    #[TestDox('書籍登録APIは正しいデータで201を返し、書籍を作成する')]
     public function test_book_store_creates_book_with_valid_data(): void
     {
         $user = User::factory()->create();
@@ -160,6 +169,7 @@ class BookControllerTest extends TestCase
         ]);
     }
 
+    #[TestDox('書籍登録APIは必須項目が不足していると422を返す')]
     public function test_book_store_returns_422_when_required_field_is_missing(): void
     {
         $user = User::factory()->create();
@@ -181,6 +191,7 @@ class BookControllerTest extends TestCase
         $this->assertDatabaseCount('books', 0);
     }
 
+    #[TestDox('書籍登録APIは存在しないuser_idを指定すると422を返す')]
     public function test_book_store_returns_422_when_user_id_does_not_exist(): void
     {
         $genre = Genre::factory()->create();
@@ -204,6 +215,7 @@ class BookControllerTest extends TestCase
     // AP04: 書籍更新API
     // ---------------------------------------------------------------
 
+    #[TestDox('書籍更新APIは正しいデータで書籍を更新できる')]
     public function test_book_update_updates_book_with_valid_data(): void
     {
         $book = Book::factory()->create(['title' => '更新前タイトル']);
@@ -227,6 +239,7 @@ class BookControllerTest extends TestCase
         ]);
     }
 
+    #[TestDox('書籍更新APIは存在しないIDを指定すると404を返す')]
     public function test_book_update_returns_404_for_nonexistent_id(): void
     {
         $genre = Genre::factory()->create();
@@ -244,6 +257,7 @@ class BookControllerTest extends TestCase
         $response->assertStatus(404);
     }
 
+    #[TestDox('書籍更新APIは自分自身のISBNのまま更新しても一意性エラーにならない')]
     public function test_book_update_ignores_own_isbn_for_uniqueness_check(): void
     {
         // 自分自身のISBNのまま更新しても一意性エラーにならないことを確認
@@ -267,6 +281,7 @@ class BookControllerTest extends TestCase
     // AP05: 書籍削除API
     // ---------------------------------------------------------------
 
+    #[TestDox('書籍削除APIは204を返し、書籍を削除する')]
     public function test_book_destroy_deletes_book(): void
     {
         $book = Book::factory()->create();
@@ -277,6 +292,7 @@ class BookControllerTest extends TestCase
         $this->assertDatabaseMissing('books', ['id' => $book->id]);
     }
 
+    #[TestDox('書籍削除APIは存在しないIDを指定すると404を返す')]
     public function test_book_destroy_returns_404_for_nonexistent_id(): void
     {
         $response = $this->deleteJson('/api/v1/books/99999');
@@ -284,6 +300,7 @@ class BookControllerTest extends TestCase
         $response->assertStatus(404);
     }
 
+    #[TestDox('書籍削除APIは関連するレビュー・お気に入り・ジャンル紐付けも連動して削除し、ジャンル自体は残す')]
     public function test_book_destroy_cascades_related_data(): void
     {
         // 関連データ（レビュー・お気に入り・ジャンル紐付け）が
