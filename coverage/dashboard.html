@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/html/app</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="_css/bootstrap.min.css?v=10.1.16" rel="stylesheet" type="text/css">
+  <link href="_css/nv.d3.min.css?v=10.1.16" rel="stylesheet" type="text/css">
+  <link href="_css/style.css?v=10.1.16" rel="stylesheet" type="text/css">
+  <link href="_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="index.html">/var/www/html/app</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Actions/Fortify/ResetUserPassword.php.html#11">App\Actions\Fortify\ResetUserPassword</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Actions/Fortify/UpdateUserPassword.php.html#11">App\Actions\Fortify\UpdateUserPassword</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Actions/Fortify/UpdateUserProfileInformation.php.html#12">App\Actions\Fortify\UpdateUserProfileInformation</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/TrustHosts.php.html#7">App\Http\Middleware\TrustHosts</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Providers/BroadcastServiceProvider.php.html#8">App\Providers\BroadcastServiceProvider</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Models/User.php.html#13">App\Models\User</a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="Console/Kernel.php.html#8">App\Console\Kernel</a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="Models/Review.php.html#10">App\Models\Review</a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="Models/Book.php.html#12">App\Models\Book</a></td><td class="text-right">71%</td></tr>
+       <tr><td><a href="Exceptions/Handler.php.html#11">App\Exceptions\Handler</a></td><td class="text-right">82%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Actions/Fortify/UpdateUserProfileInformation.php.html#12">App\Actions\Fortify\UpdateUserProfileInformation</a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="Exceptions/Handler.php.html#11">App\Exceptions\Handler</a></td><td class="text-right">6</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Actions/Fortify/ResetUserPassword.php.html#22"><abbr title="App\Actions\Fortify\ResetUserPassword::reset">reset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Actions/Fortify/UpdateUserPassword.php.html#22"><abbr title="App\Actions\Fortify\UpdateUserPassword::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Actions/Fortify/UpdateUserProfileInformation.php.html#21"><abbr title="App\Actions\Fortify\UpdateUserProfileInformation::update">update</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Actions/Fortify/UpdateUserProfileInformation.php.html#51"><abbr title="App\Actions\Fortify\UpdateUserProfileInformation::updateVerifiedUser">updateVerifiedUser</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Console/Kernel.php.html#13"><abbr title="App\Console\Kernel::schedule">schedule</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Controllers/GenreController.php.html#28"><abbr title="App\Http\Controllers\GenreController::create">create</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Http/Middleware/TrustHosts.php.html#14"><abbr title="App\Http\Middleware\TrustHosts::hosts">hosts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Models/Book.php.html#43"><abbr title="App\Models\Book::user">user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Models/Book.php.html#67"><abbr title="App\Models\Book::favoritedByUsers">favoritedByUsers</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Models/Review.php.html#44"><abbr title="App\Models\Review::likedByUsers">likedByUsers</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Models/User.php.html#51"><abbr title="App\Models\User::books">books</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Models/User.php.html#59"><abbr title="App\Models\User::reviews">reviews</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Providers/BroadcastServiceProvider.php.html#13"><abbr title="App\Providers\BroadcastServiceProvider::boot">boot</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Exceptions/Handler.php.html#34"><abbr title="App\Exceptions\Handler::render">render</abbr></a></td><td class="text-right">80%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Actions/Fortify/UpdateUserProfileInformation.php.html#21"><abbr title="App\Actions\Fortify\UpdateUserProfileInformation::update">update</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Exceptions/Handler.php.html#34"><abbr title="App\Exceptions\Handler::render">render</abbr></a></td><td class="text-right">5</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 10.1.16</a> using <a href="https://www.php.net/" target="_top">PHP 8.5.7</a> and <a href="https://phpunit.de/">PHPUnit 10.5.64</a> at Thu Aug 13 7:43:53 UTC 2026.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="_js/jquery.min.js?v=10.1.16" type="text/javascript"></script>
+  <script src="_js/d3.min.js?v=10.1.16" type="text/javascript"></script>
+  <script src="_js/nv.d3.min.js?v=10.1.16" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([5,0,0,0,0,0,1,2,1,1,2,38], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([13,0,0,0,0,0,0,0,0,1,1,90], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[100,1,"<a href=\"Actions\/Fortify\/CreateNewUser.php.html#12\">App\\Actions\\Fortify\\CreateNewUser<\/a>"],[0,1,"<a href=\"Actions\/Fortify\/ResetUserPassword.php.html#11\">App\\Actions\\Fortify\\ResetUserPassword<\/a>"],[0,1,"<a href=\"Actions\/Fortify\/UpdateUserPassword.php.html#11\">App\\Actions\\Fortify\\UpdateUserPassword<\/a>"],[0,4,"<a href=\"Actions\/Fortify\/UpdateUserProfileInformation.php.html#12\">App\\Actions\\Fortify\\UpdateUserProfileInformation<\/a>"],[66.66666666666666,2,"<a href=\"Console\/Kernel.php.html#8\">App\\Console\\Kernel<\/a>"],[82.35294117647058,6,"<a href=\"Exceptions\/Handler.php.html#11\">App\\Exceptions\\Handler<\/a>"],[100,5,"<a href=\"Http\/Controllers\/Api\/V1\/BookController.php.html#14\">App\\Http\\Controllers\\Api\\V1\\BookController<\/a>"],[100,7,"<a href=\"Http\/Controllers\/BookController.php.html#12\">App\\Http\\Controllers\\BookController<\/a>"],[100,0,"<a href=\"Http\/Controllers\/Controller.php.html#9\">App\\Http\\Controllers\\Controller<\/a>"],[100,3,"<a href=\"Http\/Controllers\/FavoriteController.php.html#10\">App\\Http\\Controllers\\FavoriteController<\/a>"],[96.7741935483871,8,"<a href=\"Http\/Controllers\/GenreController.php.html#12\">App\\Http\\Controllers\\GenreController<\/a>"],[100,1,"<a href=\"Http\/Controllers\/LikeController.php.html#9\">App\\Http\\Controllers\\LikeController<\/a>"],[100,1,"<a href=\"Http\/Controllers\/RankingController.php.html#8\">App\\Http\\Controllers\\RankingController<\/a>"],[100,0,"<a href=\"Http\/Controllers\/ReportController.php.html#7\">App\\Http\\Controllers\\ReportController<\/a>"],[100,4,"<a href=\"Http\/Controllers\/ReviewController.php.html#12\">App\\Http\\Controllers\\ReviewController<\/a>"],[100,0,"<a href=\"Http\/Kernel.php.html#7\">App\\Http\\Kernel<\/a>"],[100,2,"<a href=\"Http\/Middleware\/Authenticate.php.html#8\">App\\Http\\Middleware\\Authenticate<\/a>"],[100,0,"<a href=\"Http\/Middleware\/EncryptCookies.php.html#7\">App\\Http\\Middleware\\EncryptCookies<\/a>"],[100,0,"<a href=\"Http\/Middleware\/PreventRequestsDuringMaintenance.php.html#7\">App\\Http\\Middleware\\PreventRequestsDuringMaintenance<\/a>"],[100,4,"<a href=\"Http\/Middleware\/RedirectIfAuthenticated.php.html#11\">App\\Http\\Middleware\\RedirectIfAuthenticated<\/a>"],[100,0,"<a href=\"Http\/Middleware\/TrimStrings.php.html#7\">App\\Http\\Middleware\\TrimStrings<\/a>"],[0,1,"<a href=\"Http\/Middleware\/TrustHosts.php.html#7\">App\\Http\\Middleware\\TrustHosts<\/a>"],[100,0,"<a href=\"Http\/Middleware\/TrustProxies.php.html#8\">App\\Http\\Middleware\\TrustProxies<\/a>"],[100,0,"<a href=\"Http\/Middleware\/ValidateSignature.php.html#7\">App\\Http\\Middleware\\ValidateSignature<\/a>"],[100,0,"<a href=\"Http\/Middleware\/VerifyCsrfToken.php.html#7\">App\\Http\\Middleware\\VerifyCsrfToken<\/a>"],[100,4,"<a href=\"Http\/Requests\/Api\/V1\/BookRequest.php.html#8\">App\\Http\\Requests\\Api\\V1\\BookRequest<\/a>"],[100,4,"<a href=\"Http\/Requests\/Api\/V1\/StoreBookRequest.php.html#7\">App\\Http\\Requests\\Api\\V1\\StoreBookRequest<\/a>"],[100,4,"<a href=\"Http\/Requests\/Api\/V1\/UpdateBookRequest.php.html#8\">App\\Http\\Requests\\Api\\V1\\UpdateBookRequest<\/a>"],[100,4,"<a href=\"Http\/Requests\/StoreBookRequest.php.html#7\">App\\Http\\Requests\\StoreBookRequest<\/a>"],[100,4,"<a href=\"Http\/Requests\/StoreGenreRequest.php.html#7\">App\\Http\\Requests\\StoreGenreRequest<\/a>"],[100,4,"<a href=\"Http\/Requests\/StoreReviewRequest.php.html#7\">App\\Http\\Requests\\StoreReviewRequest<\/a>"],[100,5,"<a href=\"Http\/Requests\/UpdateBookRequest.php.html#8\">App\\Http\\Requests\\UpdateBookRequest<\/a>"],[100,4,"<a href=\"Http\/Requests\/UpdateGenreRequest.php.html#8\">App\\Http\\Requests\\UpdateGenreRequest<\/a>"],[100,5,"<a href=\"Http\/Requests\/UpdateReviewRequest.php.html#7\">App\\Http\\Requests\\UpdateReviewRequest<\/a>"],[100,1,"<a href=\"Http\/Resources\/Api\/V1\/BookResource.php.html#8\">App\\Http\\Resources\\Api\\V1\\BookResource<\/a>"],[100,1,"<a href=\"Http\/Resources\/Api\/V1\/GenreResource.php.html#8\">App\\Http\\Resources\\Api\\V1\\GenreResource<\/a>"],[100,1,"<a href=\"Http\/Resources\/Api\/V1\/ReviewResource.php.html#8\">App\\Http\\Resources\\Api\\V1\\ReviewResource<\/a>"],[71.42857142857143,5,"<a href=\"Models\/Book.php.html#12\">App\\Models\\Book<\/a>"],[100,1,"<a href=\"Models\/Genre.php.html#9\">App\\Models\\Genre<\/a>"],[66.66666666666666,3,"<a href=\"Models\/Review.php.html#10\">App\\Models\\Review<\/a>"],[50,4,"<a href=\"Models\/User.php.html#13\">App\\Models\\User<\/a>"],[100,2,"<a href=\"Policies\/BookPolicy.php.html#8\">App\\Policies\\BookPolicy<\/a>"],[100,2,"<a href=\"Policies\/ReviewPolicy.php.html#8\">App\\Policies\\ReviewPolicy<\/a>"],[100,2,"<a href=\"Providers\/AppServiceProvider.php.html#7\">App\\Providers\\AppServiceProvider<\/a>"],[100,1,"<a href=\"Providers\/AuthServiceProvider.php.html#12\">App\\Providers\\AuthServiceProvider<\/a>"],[0,1,"<a href=\"Providers\/BroadcastServiceProvider.php.html#8\">App\\Providers\\BroadcastServiceProvider<\/a>"],[100,2,"<a href=\"Providers\/EventServiceProvider.php.html#10\">App\\Providers\\EventServiceProvider<\/a>"],[93.33333333333333,2,"<a href=\"Providers\/FortifyServiceProvider.php.html#17\">App\\Providers\\FortifyServiceProvider<\/a>"],[100,2,"<a href=\"Providers\/RouteServiceProvider.php.html#11\">App\\Providers\\RouteServiceProvider<\/a>"],[100,1,"<a href=\"Actions\/Fortify\/PasswordValidationRules.php.html#8\">App\\Actions\\Fortify\\PasswordValidationRules<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[100,1,"<a href=\"Actions\/Fortify\/CreateNewUser.php.html#23\">App\\Actions\\Fortify\\CreateNewUser::create<\/a>"],[0,1,"<a href=\"Actions\/Fortify\/ResetUserPassword.php.html#22\">App\\Actions\\Fortify\\ResetUserPassword::reset<\/a>"],[0,1,"<a href=\"Actions\/Fortify\/UpdateUserPassword.php.html#22\">App\\Actions\\Fortify\\UpdateUserPassword::update<\/a>"],[0,3,"<a href=\"Actions\/Fortify\/UpdateUserProfileInformation.php.html#21\">App\\Actions\\Fortify\\UpdateUserProfileInformation::update<\/a>"],[0,1,"<a href=\"Actions\/Fortify\/UpdateUserProfileInformation.php.html#51\">App\\Actions\\Fortify\\UpdateUserProfileInformation::updateVerifiedUser<\/a>"],[0,1,"<a href=\"Console\/Kernel.php.html#13\">App\\Console\\Kernel::schedule<\/a>"],[100,1,"<a href=\"Console\/Kernel.php.html#21\">App\\Console\\Kernel::commands<\/a>"],[100,1,"<a href=\"Exceptions\/Handler.php.html#27\">App\\Exceptions\\Handler::register<\/a>"],[80,5,"<a href=\"Exceptions\/Handler.php.html#34\">App\\Exceptions\\Handler::render<\/a>"],[100,1,"<a href=\"Http\/Controllers\/Api\/V1\/BookController.php.html#20\">App\\Http\\Controllers\\Api\\V1\\BookController::index<\/a>"],[100,1,"<a href=\"Http\/Controllers\/Api\/V1\/BookController.php.html#64\">App\\Http\\Controllers\\Api\\V1\\BookController::show<\/a>"],[100,1,"<a href=\"Http\/Controllers\/Api\/V1\/BookController.php.html#75\">App\\Http\\Controllers\\Api\\V1\\BookController::store<\/a>"],[100,1,"<a href=\"Http\/Controllers\/Api\/V1\/BookController.php.html#101\">App\\Http\\Controllers\\Api\\V1\\BookController::update<\/a>"],[100,1,"<a href=\"Http\/Controllers\/Api\/V1\/BookController.php.html#125\">App\\Http\\Controllers\\Api\\V1\\BookController::destroy<\/a>"],[100,1,"<a href=\"Http\/Controllers\/BookController.php.html#19\">App\\Http\\Controllers\\BookController::index<\/a>"],[100,1,"<a href=\"Http\/Controllers\/BookController.php.html#33\">App\\Http\\Controllers\\BookController::create<\/a>"],[100,1,"<a href=\"Http\/Controllers\/BookController.php.html#43\">App\\Http\\Controllers\\BookController::store<\/a>"],[100,1,"<a href=\"Http\/Controllers\/BookController.php.html#68\">App\\Http\\Controllers\\BookController::show<\/a>"],[100,1,"<a href=\"Http\/Controllers\/BookController.php.html#84\">App\\Http\\Controllers\\BookController::edit<\/a>"],[100,1,"<a href=\"Http\/Controllers\/BookController.php.html#97\">App\\Http\\Controllers\\BookController::update<\/a>"],[100,1,"<a href=\"Http\/Controllers\/BookController.php.html#123\">App\\Http\\Controllers\\BookController::destroy<\/a>"],[100,1,"<a href=\"Http\/Controllers\/FavoriteController.php.html#17\">App\\Http\\Controllers\\FavoriteController::index<\/a>"],[100,2,"<a href=\"Http\/Controllers\/FavoriteController.php.html#33\">App\\Http\\Controllers\\FavoriteController::toggle<\/a>"],[100,1,"<a href=\"Http\/Controllers\/GenreController.php.html#18\">App\\Http\\Controllers\\GenreController::index<\/a>"],[0,1,"<a href=\"Http\/Controllers\/GenreController.php.html#28\">App\\Http\\Controllers\\GenreController::create<\/a>"],[100,1,"<a href=\"Http\/Controllers\/GenreController.php.html#36\">App\\Http\\Controllers\\GenreController::store<\/a>"],[100,1,"<a href=\"Http\/Controllers\/GenreController.php.html#54\">App\\Http\\Controllers\\GenreController::show<\/a>"],[100,1,"<a href=\"Http\/Controllers\/GenreController.php.html#67\">App\\Http\\Controllers\\GenreController::edit<\/a>"],[100,1,"<a href=\"Http\/Controllers\/GenreController.php.html#75\">App\\Http\\Controllers\\GenreController::update<\/a>"],[100,2,"<a href=\"Http\/Controllers\/GenreController.php.html#93\">App\\Http\\Controllers\\GenreController::destroy<\/a>"],[100,1,"<a href=\"Http\/Controllers\/LikeController.php.html#15\">App\\Http\\Controllers\\LikeController::toggle<\/a>"],[100,1,"<a href=\"Http\/Controllers\/RankingController.php.html#16\">App\\Http\\Controllers\\RankingController::index<\/a>"],[100,1,"<a href=\"Http\/Controllers\/ReviewController.php.html#17\">App\\Http\\Controllers\\ReviewController::store<\/a>"],[100,1,"<a href=\"Http\/Controllers\/ReviewController.php.html#36\">App\\Http\\Controllers\\ReviewController::edit<\/a>"],[100,1,"<a href=\"Http\/Controllers\/ReviewController.php.html#49\">App\\Http\\Controllers\\ReviewController::update<\/a>"],[100,1,"<a href=\"Http\/Controllers\/ReviewController.php.html#69\">App\\Http\\Controllers\\ReviewController::destroy<\/a>"],[100,2,"<a href=\"Http\/Middleware\/Authenticate.php.html#13\">App\\Http\\Middleware\\Authenticate::redirectTo<\/a>"],[100,4,"<a href=\"Http\/Middleware\/RedirectIfAuthenticated.php.html#18\">App\\Http\\Middleware\\RedirectIfAuthenticated::handle<\/a>"],[0,1,"<a href=\"Http\/Middleware\/TrustHosts.php.html#14\">App\\Http\\Middleware\\TrustHosts::hosts<\/a>"],[100,1,"<a href=\"Http\/Requests\/Api\/V1\/BookRequest.php.html#13\">App\\Http\\Requests\\Api\\V1\\BookRequest::authorize<\/a>"],[100,1,"<a href=\"Http\/Requests\/Api\/V1\/BookRequest.php.html#18\">App\\Http\\Requests\\Api\\V1\\BookRequest::rules<\/a>"],[100,1,"<a href=\"Http\/Requests\/Api\/V1\/BookRequest.php.html#38\">App\\Http\\Requests\\Api\\V1\\BookRequest::messages<\/a>"],[100,1,"<a href=\"Http\/Requests\/Api\/V1\/BookRequest.php.html#57\">App\\Http\\Requests\\Api\\V1\\BookRequest::attributes<\/a>"],[100,1,"<a href=\"Http\/Requests\/Api\/V1\/StoreBookRequest.php.html#14\">App\\Http\\Requests\\Api\\V1\\StoreBookRequest::authorize<\/a>"],[100,1,"<a href=\"Http\/Requests\/Api\/V1\/StoreBookRequest.php.html#19\">App\\Http\\Requests\\Api\\V1\\StoreBookRequest::rules<\/a>"],[100,1,"<a href=\"Http\/Requests\/Api\/V1\/StoreBookRequest.php.html#37\">App\\Http\\Requests\\Api\\V1\\StoreBookRequest::messages<\/a>"],[100,1,"<a href=\"Http\/Requests\/Api\/V1\/StoreBookRequest.php.html#72\">App\\Http\\Requests\\Api\\V1\\StoreBookRequest::attributes<\/a>"],[100,1,"<a href=\"Http\/Requests\/Api\/V1\/UpdateBookRequest.php.html#15\">App\\Http\\Requests\\Api\\V1\\UpdateBookRequest::authorize<\/a>"],[100,1,"<a href=\"Http\/Requests\/Api\/V1\/UpdateBookRequest.php.html#20\">App\\Http\\Requests\\Api\\V1\\UpdateBookRequest::rules<\/a>"],[100,1,"<a href=\"Http\/Requests\/Api\/V1\/UpdateBookRequest.php.html#38\">App\\Http\\Requests\\Api\\V1\\UpdateBookRequest::messages<\/a>"],[100,1,"<a href=\"Http\/Requests\/Api\/V1\/UpdateBookRequest.php.html#68\">App\\Http\\Requests\\Api\\V1\\UpdateBookRequest::attributes<\/a>"],[100,1,"<a href=\"Http\/Requests\/StoreBookRequest.php.html#12\">App\\Http\\Requests\\StoreBookRequest::authorize<\/a>"],[100,1,"<a href=\"Http\/Requests\/StoreBookRequest.php.html#17\">App\\Http\\Requests\\StoreBookRequest::rules<\/a>"],[100,1,"<a href=\"Http\/Requests\/StoreBookRequest.php.html#31\">App\\Http\\Requests\\StoreBookRequest::messages<\/a>"],[100,1,"<a href=\"Http\/Requests\/StoreBookRequest.php.html#61\">App\\Http\\Requests\\StoreBookRequest::attributes<\/a>"],[100,1,"<a href=\"Http\/Requests\/StoreGenreRequest.php.html#12\">App\\Http\\Requests\\StoreGenreRequest::authorize<\/a>"],[100,1,"<a href=\"Http\/Requests\/StoreGenreRequest.php.html#17\">App\\Http\\Requests\\StoreGenreRequest::rules<\/a>"],[100,1,"<a href=\"Http\/Requests\/StoreGenreRequest.php.html#24\">App\\Http\\Requests\\StoreGenreRequest::messages<\/a>"],[100,1,"<a href=\"Http\/Requests\/StoreGenreRequest.php.html#33\">App\\Http\\Requests\\StoreGenreRequest::attributes<\/a>"],[100,1,"<a href=\"Http\/Requests\/StoreReviewRequest.php.html#12\">App\\Http\\Requests\\StoreReviewRequest::authorize<\/a>"],[100,1,"<a href=\"Http\/Requests\/StoreReviewRequest.php.html#17\">App\\Http\\Requests\\StoreReviewRequest::rules<\/a>"],[100,1,"<a href=\"Http\/Requests\/StoreReviewRequest.php.html#25\">App\\Http\\Requests\\StoreReviewRequest::messages<\/a>"],[100,1,"<a href=\"Http\/Requests\/StoreReviewRequest.php.html#36\">App\\Http\\Requests\\StoreReviewRequest::attributes<\/a>"],[100,2,"<a href=\"Http\/Requests\/UpdateBookRequest.php.html#13\">App\\Http\\Requests\\UpdateBookRequest::authorize<\/a>"],[100,1,"<a href=\"Http\/Requests\/UpdateBookRequest.php.html#20\">App\\Http\\Requests\\UpdateBookRequest::rules<\/a>"],[100,1,"<a href=\"Http\/Requests\/UpdateBookRequest.php.html#38\">App\\Http\\Requests\\UpdateBookRequest::messages<\/a>"],[100,1,"<a href=\"Http\/Requests\/UpdateBookRequest.php.html#68\">App\\Http\\Requests\\UpdateBookRequest::attributes<\/a>"],[100,1,"<a href=\"Http\/Requests\/UpdateGenreRequest.php.html#13\">App\\Http\\Requests\\UpdateGenreRequest::authorize<\/a>"],[100,1,"<a href=\"Http\/Requests\/UpdateGenreRequest.php.html#18\">App\\Http\\Requests\\UpdateGenreRequest::rules<\/a>"],[100,1,"<a href=\"Http\/Requests\/UpdateGenreRequest.php.html#30\">App\\Http\\Requests\\UpdateGenreRequest::messages<\/a>"],[100,1,"<a href=\"Http\/Requests\/UpdateGenreRequest.php.html#39\">App\\Http\\Requests\\UpdateGenreRequest::attributes<\/a>"],[100,2,"<a href=\"Http\/Requests\/UpdateReviewRequest.php.html#12\">App\\Http\\Requests\\UpdateReviewRequest::authorize<\/a>"],[100,1,"<a href=\"Http\/Requests\/UpdateReviewRequest.php.html#19\">App\\Http\\Requests\\UpdateReviewRequest::rules<\/a>"],[100,1,"<a href=\"Http\/Requests\/UpdateReviewRequest.php.html#27\">App\\Http\\Requests\\UpdateReviewRequest::messages<\/a>"],[100,1,"<a href=\"Http\/Requests\/UpdateReviewRequest.php.html#38\">App\\Http\\Requests\\UpdateReviewRequest::attributes<\/a>"],[100,1,"<a href=\"Http\/Resources\/Api\/V1\/BookResource.php.html#17\">App\\Http\\Resources\\Api\\V1\\BookResource::toArray<\/a>"],[100,1,"<a href=\"Http\/Resources\/Api\/V1\/GenreResource.php.html#10\">App\\Http\\Resources\\Api\\V1\\GenreResource::toArray<\/a>"],[100,1,"<a href=\"Http\/Resources\/Api\/V1\/ReviewResource.php.html#10\">App\\Http\\Resources\\Api\\V1\\ReviewResource::toArray<\/a>"],[100,1,"<a href=\"Models\/Book.php.html#33\">App\\Models\\Book::author<\/a>"],[0,1,"<a href=\"Models\/Book.php.html#43\">App\\Models\\Book::user<\/a>"],[100,1,"<a href=\"Models\/Book.php.html#51\">App\\Models\\Book::genres<\/a>"],[100,1,"<a href=\"Models\/Book.php.html#59\">App\\Models\\Book::reviews<\/a>"],[0,1,"<a href=\"Models\/Book.php.html#67\">App\\Models\\Book::favoritedByUsers<\/a>"],[100,1,"<a href=\"Models\/Genre.php.html#21\">App\\Models\\Genre::books<\/a>"],[100,1,"<a href=\"Models\/Review.php.html#28\">App\\Models\\Review::user<\/a>"],[100,1,"<a href=\"Models\/Review.php.html#36\">App\\Models\\Review::book<\/a>"],[0,1,"<a href=\"Models\/Review.php.html#44\">App\\Models\\Review::likedByUsers<\/a>"],[0,1,"<a href=\"Models\/User.php.html#51\">App\\Models\\User::books<\/a>"],[0,1,"<a href=\"Models\/User.php.html#59\">App\\Models\\User::reviews<\/a>"],[100,1,"<a href=\"Models\/User.php.html#67\">App\\Models\\User::favoriteBooks<\/a>"],[100,1,"<a href=\"Models\/User.php.html#75\">App\\Models\\User::likedReviews<\/a>"],[100,1,"<a href=\"Policies\/BookPolicy.php.html#14\">App\\Policies\\BookPolicy::update<\/a>"],[100,1,"<a href=\"Policies\/BookPolicy.php.html#19\">App\\Policies\\BookPolicy::delete<\/a>"],[100,1,"<a href=\"Policies\/ReviewPolicy.php.html#13\">App\\Policies\\ReviewPolicy::update<\/a>"],[100,1,"<a href=\"Policies\/ReviewPolicy.php.html#18\">App\\Policies\\ReviewPolicy::delete<\/a>"],[100,1,"<a href=\"Providers\/AppServiceProvider.php.html#12\">App\\Providers\\AppServiceProvider::register<\/a>"],[100,1,"<a href=\"Providers\/AppServiceProvider.php.html#20\">App\\Providers\\AppServiceProvider::boot<\/a>"],[100,1,"<a href=\"Providers\/AuthServiceProvider.php.html#27\">App\\Providers\\AuthServiceProvider::boot<\/a>"],[0,1,"<a href=\"Providers\/BroadcastServiceProvider.php.html#13\">App\\Providers\\BroadcastServiceProvider::boot<\/a>"],[100,1,"<a href=\"Providers\/EventServiceProvider.php.html#26\">App\\Providers\\EventServiceProvider::boot<\/a>"],[100,1,"<a href=\"Providers\/EventServiceProvider.php.html#34\">App\\Providers\\EventServiceProvider::shouldDiscoverEvents<\/a>"],[100,1,"<a href=\"Providers\/FortifyServiceProvider.php.html#22\">App\\Providers\\FortifyServiceProvider::register<\/a>"],[92.85714285714286,1,"<a href=\"Providers\/FortifyServiceProvider.php.html#30\">App\\Providers\\FortifyServiceProvider::boot<\/a>"],[100,2,"<a href=\"Providers\/RouteServiceProvider.php.html#25\">App\\Providers\\RouteServiceProvider::boot<\/a>"],[100,1,"<a href=\"Actions\/Fortify\/PasswordValidationRules.php.html#15\">App\\Actions\\Fortify\\PasswordValidationRules::passwordRules<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

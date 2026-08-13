@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\Genre;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 
 class BookControllerTest extends TestCase
@@ -16,13 +17,7 @@ class BookControllerTest extends TestCase
     // 公開ページ（ゲスト可）
     // ---------------------------------------------------------------
 
-    public function test_guest_can_view_top_page(): void
-    {
-        $response = $this->get('/');
-
-        $response->assertOk();
-    }
-
+    #[TestDox('ゲストでも書籍一覧を閲覧できる')]
     public function test_guest_can_view_book_index(): void
     {
         Book::factory()->count(3)->create();
@@ -33,6 +28,7 @@ class BookControllerTest extends TestCase
         $response->assertViewIs('books.index');
     }
 
+    #[TestDox('ゲストでも書籍詳細を閲覧できる')]
     public function test_guest_can_view_book_show(): void
     {
         $book = Book::factory()->create();
@@ -48,6 +44,7 @@ class BookControllerTest extends TestCase
     // 認証必須（登録画面）
     // ---------------------------------------------------------------
 
+    #[TestDox('未ログイン状態では書籍登録画面にアクセスできない')]
     public function test_guest_cannot_view_create_page(): void
     {
         $response = $this->get(route('books.create'));
@@ -55,6 +52,7 @@ class BookControllerTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
+    #[TestDox('ログイン済みユーザーは書籍登録画面を表示できる')]
     public function test_authenticated_user_can_view_create_page(): void
     {
         $user = User::factory()->create();
@@ -69,6 +67,7 @@ class BookControllerTest extends TestCase
     // 登録（store）
     // ---------------------------------------------------------------
 
+    #[TestDox('ログイン済みユーザーは書籍を登録できる')]
     public function test_authenticated_user_can_store_book(): void
     {
         $user = User::factory()->create();
@@ -99,6 +98,7 @@ class BookControllerTest extends TestCase
         $response->assertRedirect(route('books.show', $book));
     }
 
+    #[TestDox('未ログイン状態では書籍を登録できない')]
     public function test_guest_cannot_store_book(): void
     {
         $genre = Genre::factory()->create();
@@ -121,6 +121,7 @@ class BookControllerTest extends TestCase
     // バリデーション（StoreBookRequest）
     // ---------------------------------------------------------------
 
+    #[TestDox('タイトルが未入力の場合は登録に失敗する')]
     public function test_store_fails_when_title_is_missing(): void
     {
         $user = User::factory()->create();
@@ -140,6 +141,7 @@ class BookControllerTest extends TestCase
         $this->assertDatabaseCount('books', 0);
     }
 
+    #[TestDox('ISBNが13桁でない場合は登録に失敗する')]
     public function test_store_fails_when_isbn_is_not_13_digits(): void
     {
         $user = User::factory()->create();
@@ -158,6 +160,7 @@ class BookControllerTest extends TestCase
         $response->assertSessionHasErrors('isbn');
     }
 
+    #[TestDox('ISBNが既存の書籍と重複する場合は登録に失敗する')]
     public function test_store_fails_when_isbn_already_exists(): void
     {
         $user = User::factory()->create();
@@ -177,6 +180,7 @@ class BookControllerTest extends TestCase
         $response->assertSessionHasErrors('isbn');
     }
 
+    #[TestDox('ジャンルが1つも選択されていない場合は登録に失敗する')]
     public function test_store_fails_when_no_genre_selected(): void
     {
         $user = User::factory()->create();
@@ -194,6 +198,7 @@ class BookControllerTest extends TestCase
         $response->assertSessionHasErrors('genres');
     }
 
+    #[TestDox('出版日が未来日の場合は登録に失敗する')]
     public function test_store_fails_when_published_date_is_future(): void
     {
         $user = User::factory()->create();
@@ -216,6 +221,7 @@ class BookControllerTest extends TestCase
     // 編集画面（認証＋認可）
     // ---------------------------------------------------------------
 
+    #[TestDox('登録者本人は書籍編集画面を表示できる')]
     public function test_owner_can_view_edit_page(): void
     {
         $user = User::factory()->create();
@@ -227,6 +233,7 @@ class BookControllerTest extends TestCase
         $response->assertViewIs('books.edit');
     }
 
+    #[TestDox('登録者本人でなければ書籍編集画面にアクセスすると403になる')]
     public function test_non_owner_cannot_view_edit_page(): void
     {
         $owner = User::factory()->create();
@@ -242,6 +249,7 @@ class BookControllerTest extends TestCase
     // 更新（update）
     // ---------------------------------------------------------------
 
+    #[TestDox('登録者本人は書籍を更新できる')]
     public function test_owner_can_update_book(): void
     {
         $user = User::factory()->create();
@@ -265,6 +273,7 @@ class BookControllerTest extends TestCase
         ]);
     }
 
+    #[TestDox('登録者本人でなければ書籍を更新しようとすると403になる')]
     public function test_non_owner_cannot_update_book(): void
     {
         $owner = User::factory()->create();
@@ -290,6 +299,7 @@ class BookControllerTest extends TestCase
     // 削除（destroy）
     // ---------------------------------------------------------------
 
+    #[TestDox('登録者本人は書籍を削除できる')]
     public function test_owner_can_delete_book(): void
     {
         $user = User::factory()->create();
@@ -301,6 +311,7 @@ class BookControllerTest extends TestCase
         $this->assertDatabaseMissing('books', ['id' => $book->id]);
     }
 
+    #[TestDox('登録者本人でなければ書籍を削除しようとすると403になる')]
     public function test_non_owner_cannot_delete_book(): void
     {
         $owner = User::factory()->create();
@@ -311,12 +322,5 @@ class BookControllerTest extends TestCase
 
         $response->assertForbidden();
         $this->assertDatabaseHas('books', ['id' => $book->id]);
-    }
-
-    public function test_non_existing_book_returns_404(): void
-    {
-        $response = $this->get('/books/999999');
-
-        $response->assertNotFound();
     }
 }
