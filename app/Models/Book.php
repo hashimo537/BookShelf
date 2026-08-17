@@ -68,4 +68,14 @@ class Book extends Model
     {
         return $this->belongsToMany(User::class, 'favorites');
     }
+    /**
+     * この書籍のレビュー平均評価を計算する（小数第2位まで）。
+     * レビューが1件も無い場合はnullを返す。
+     */
+    public function averageRating(): ?float
+    {
+        $average = $this->reviews()->avg('rating');
+
+        return $average !== null ? round((float) $average, 2) : null;
+    }
 }
