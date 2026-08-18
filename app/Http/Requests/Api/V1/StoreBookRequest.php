@@ -7,9 +7,8 @@ use Illuminate\Foundation\Http\FormRequest;
 class StoreBookRequest extends FormRequest
 {
     /**
-     * 基礎段階では認証不要（API仕様書のとおり）。
-     * 応用段階（★AP06）で Sanctum のトークン認証をミドルウェアに追加した際は、
-     * ここで Auth::check() を見る必要はない（ミドルウェア側で弾かれるため）。
+     * ★Sanctum導入後：認証はルート側の auth:sanctum ミドルウェアで担保済みのため、
+     * ここでは常にtrue（未認証リクエストはこのFormRequestに到達する前に弾かれる）。
      */
     public function authorize(): bool
     {
@@ -19,10 +18,8 @@ class StoreBookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 認証が無い基礎段階では、リクエストボディで登録者IDを受け取り、
-            // 実在するユーザーかどうかだけを検証する（なりすまし防止は応用段階のSanctumで対応）。
-            'user_id' => ['required', 'integer', 'exists:users,id'],
-
+            // ★Sanctum導入前は user_id をリクエストボディで受け取っていたが、
+            // 認証済みユーザーのIDを自動的に使うよう変更したため、このルールは削除した。
             'title' => ['required', 'string', 'max:255'],
             'author_name' => ['required', 'string', 'max:255'],
             'isbn' => ['required', 'digits:13', 'unique:books,isbn'],
@@ -37,12 +34,6 @@ class StoreBookRequest extends FormRequest
     public function messages(): array
     {
         return [
-            // 登録者ID
-            'user_id.required' => '登録者IDは必須です。',
-            'user_id.integer' => '登録者IDは整数で指定してください。',
-            'user_id.exists' => '指定された登録者IDのユーザーが存在しません。',
-
-            // 未入力
             'title.required' => 'タイトルは必須です。',
             'author_name.required' => '著者名は必須です。',
             'isbn.required' => 'ISBNは必須です。',
@@ -50,19 +41,15 @@ class StoreBookRequest extends FormRequest
             'genres.required' => 'ジャンルを1つ以上選択してください。',
             'genres.min' => 'ジャンルを1つ以上選択してください。',
 
-            // ISBN形式・一意性
             'isbn.digits' => 'ISBNは13桁の数字で入力してください。',
             'isbn.unique' => 'そのISBNは既に使用されています。',
 
-            // 出版日
             'published_date.date' => '出版日は有効な日付形式で入力してください。',
             'published_date.before_or_equal' => '出版日には今日以前の日付を入力してください。',
 
-            // 画像URL
             'image_url.url' => '有効なURL形式で入力してください。',
             'image_url.max' => '画像URLは255文字以内で入力してください。',
 
-            // 文字数超過
             'title.max' => 'タイトルは255文字以内で入力してください。',
             'author_name.max' => '著者名は255文字以内で入力してください。',
             'description.max' => '説明は1000文字以内で入力してください。',
@@ -72,7 +59,6 @@ class StoreBookRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'user_id' => '登録者ID',
             'title' => 'タイトル',
             'author_name' => '著者名',
             'isbn' => 'ISBN',

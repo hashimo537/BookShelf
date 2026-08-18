@@ -2,6 +2,8 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
@@ -35,9 +37,21 @@ class Handler extends ExceptionHandler
     {
         // api/* 配下は、Postmanなどで Accept: application/json ヘッダーが
         // 付いていなくても必ずJSONを返すようにする。
-        // （このヘッダーが無いと、Laravel標準の挙動ではHTMLのエラーページが
-        //   返ってしまい、Postmanでの動作確認がしづらいため。）
         if ($request->is('api/*')) {
+
+            // ★AP06: トークンが無い・無効・期限切れ（auth:sanctumミドルウェアが投げる）
+            if ($e instanceof AuthenticationException) {
+                return response()->json([
+                    'message' => '認証が必要です。',
+                ], 401);
+            }
+
+            // ★AP06: トークンは有効だが、他人の書籍を更新・削除しようとした（BookPolicyが投げる）
+            if ($e instanceof AuthorizationException) {
+                return response()->json([
+                    'message' => 'この操作を行う権限がありません。',
+                ], 403);
+            }
 
             // AP02/AP04: 存在しないIDが指定された場合（ルートモデルバインディング失敗）
             if ($e instanceof ModelNotFoundException) {
