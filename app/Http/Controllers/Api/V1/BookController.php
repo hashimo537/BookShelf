@@ -15,15 +15,11 @@ class BookController extends Controller
 {
     /**
      * AP01: 書籍一覧API（GET /api/v1/books）
-     * 認証不要。キーワード検索・ジャンル絞り込み・ページネーションに対応。
+     * 認証不要。
      */
     public function index(BookRequest $request): JsonResponse
     {
         $validated = $request->validated();
-
-        // per_page は「デフォルト20・上限100でクランプ」方式（PM確認済み）。
-        // バリデーションでは1以上の整数であることのみを検証しており、
-        // 100を超える指定はエラーにせずここで丸め込む。
         $perPage = min($validated['per_page'] ?? 20, 100);
 
         $books = Book::query()
@@ -58,8 +54,7 @@ class BookController extends Controller
 
     /**
      * AP02: 書籍詳細API（GET /api/v1/books/{book}）
-     * 認証不要。ジャンル情報とレビュー（投稿者名・評価・コメント・投稿日時）を含める。
-     * 存在しないIDの場合は、ルートモデルバインディングが自動的に404を返す。
+     * 認証不要。
      */
     public function show(Book $book): BookResource
     {
@@ -69,15 +64,16 @@ class BookController extends Controller
     }
 
     /**
-     * AP03: 書籍登録API（POST /api/v1/books）
-     * 基礎段階では認証不要。登録者IDはリクエストボディで受け取る。
+     * ★AP03: 書籍登録API（POST /api/v1/books）
+     * Sanctumトークン必須（routes/api.phpのauth:sanctumミドルウェアで担保）。
+     * 登録者IDはリクエストボディではなく、認証済みユーザーから自動的に取得する。
      */
     public function store(StoreBookRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
         $book = Book::create([
-            'user_id' => $validated['user_id'],
+            'user_id' => $request->user()->id,
             'title' => $validated['title'],
             'author_name' => $validated['author_name'],
             'isbn' => $validated['isbn'],
@@ -91,12 +87,12 @@ class BookController extends Controller
 
         return (new BookResource($book))
             ->response()
-            ->setStatusCode(Response::HTTP_CREATED); // 201
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
-     * AP04: 書籍更新API（PUT /api/v1/books/{book}）
-     * 基礎段階では認証不要。存在しないIDの場合はルートモデルバインディングが404を返す。
+     * ★AP04: 書籍更新API（PUT /api/v1/books/{book}）
+     * Sanctumトークン必須 + 登録者本人のみ（UpdateBookRequest::authorize()で担保）。
      */
     public function update(UpdateBookRequest $request, Book $book): BookResource
     {
@@ -118,14 +114,15 @@ class BookController extends Controller
     }
 
     /**
-     * AP05: 書籍削除API（DELETE /api/v1/books/{book}）
-     * 関連データ（レビュー・お気に入り・ジャンル紐付け）は
-     * すべて cascadeOnDelete のため、書籍削除と同時に自動的に削除される。
+     * ★AP05: 書籍削除API（DELETE /api/v1/books/{book}）
+     * Sanctumトークン必須 + 登録者本人のみ（BookPolicyで担保）。
      */
     public function destroy(Book $book): Response
     {
+        $this->authorize('delete', $book);
+
         $book->delete();
 
-        return response()->noContent(); // 204
+        return response()->noContent();
     }
 }
