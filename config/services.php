@@ -31,4 +31,14 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Google Books API（★ISBN検索機能で使用）
+    |--------------------------------------------------------------------------
+    */
+    'google_books' => [
+        'key' => env('GOOGLE_BOOKS_API_KEY'),
+        'base_url' => env('GOOGLE_BOOKS_API_BASE_URL', 'https://www.googleapis.com/books/v1'),
+    ],
+
 ];
