@@ -8,6 +8,7 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReadingPlanController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -78,6 +79,17 @@ Route::middleware('auth')->group(function () {
 
     // ★ マイ読書レポート
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+    // ★読書計画（reading-plans）
+    // /reading-plans/create（固定文字列）は /reading-plans/{reading_plan}/edit（ワイルドカード）より
+    // 先に登録する必要があるため、この順番を崩さないこと。
+    Route::get('/reading-plans', [ReadingPlanController::class, 'index'])->name('reading-plans.index');
+    Route::get('/reading-plans/create', [ReadingPlanController::class, 'create'])->name('reading-plans.create');
+    Route::post('/reading-plans', [ReadingPlanController::class, 'store'])->name('reading-plans.store');
+    Route::get('/reading-plans/{reading_plan}/edit', [ReadingPlanController::class, 'edit'])->name('reading-plans.edit');
+    Route::put('/reading-plans/{reading_plan}', [ReadingPlanController::class, 'update'])->name('reading-plans.update');
+    Route::post('/reading-plans/{reading_plan}/complete', [ReadingPlanController::class, 'complete'])->name('reading-plans.complete');
+    Route::delete('/reading-plans/{reading_plan}', [ReadingPlanController::class, 'destroy'])->name('reading-plans.destroy');
 });
 
 /*
