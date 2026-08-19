@@ -9,6 +9,41 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $title
+ * @property string $author_name
+ * @property string $isbn
+ * @property \Illuminate\Support\Carbon $published_date
+ * @property string|null $description
+ * @property string|null $image_url
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read mixed $author
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $favoritedByUsers
+ * @property-read int|null $favorited_by_users_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Genre> $genres
+ * @property-read int|null $genres_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
+ * @property-read int|null $reviews_count
+ * @property-read \App\Models\User $user
+ * @method static \Database\Factories\BookFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Book newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Book newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Book query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Book whereAuthorName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Book whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Book whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Book whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Book whereImageUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Book whereIsbn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Book wherePublishedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Book whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Book whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Book whereUserId($value)
+ * @mixin \Eloquent
+ */
 class Book extends Model
 {
     use HasFactory;

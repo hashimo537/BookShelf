@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BookIndexRequest;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use App\Models\Book;
 use App\Models\Genre;
+use App\Services\GoogleBooksService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -14,16 +17,46 @@ class BookController extends Controller
     /**
      * 書籍一覧（トップページ / GET /books）
      * 公開ページ（ゲスト可）。
-     * 最新順・10件ずつページネーションして表示する。
+     * ★キーワード検索・ジャンル絞り込み・並び替えに対応し、
+     * 検索条件はページネーションのリンクにも引き継がれる。
      */
-    public function index(): View
+    public function index(BookIndexRequest $request): View
     {
+        $validated = $request->validated();
+
         $books = Book::with('genres')
             ->withAvg('reviews', 'rating')
-            ->latest() // created_at の降順（最新登録順）
-            ->paginate(10);
+            ->when($validated['keyword'] ?? null, function ($query, $keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('title', 'like', "%{$keyword}%")
+                        ->orWhere('author_name', 'like', "%{$keyword}%");
+                });
+            })
+            ->when($validated['genre'] ?? null, function ($query, $genreId) {
+                $query->whereHas('genres', fn($q) => $q->where('genres.id', $genreId));
+            })
+            ->when(
+                ($validated['sort'] ?? 'newest') === 'oldest',
+                fn($query) => $query->oldest()
+            )
+            ->when(
+                ($validated['sort'] ?? 'newest') === 'rating',
+                fn($query) => $query->orderByDesc('reviews_avg_rating')
+            )
+            ->when(
+                ($validated['sort'] ?? 'newest') === 'title',
+                fn($query) => $query->orderBy('title')
+            )
+            ->when(
+                ($validated['sort'] ?? 'newest') === 'newest',
+                fn($query) => $query->latest()
+            )
+            ->paginate(10)
+            ->withQueryString(); // ページネーションリンクに検索条件を引き継ぐ
 
-        return view('books.index', compact('books'));
+        $genres = Genre::all();
+
+        return view('books.index', compact('books', 'genres'));
     }
 
     /**
@@ -83,7 +116,7 @@ class BookController extends Controller
      */
     public function edit(Book $book): View
     {
-        $this->authorize('update', $book); // 本人でなければ403
+        $this->authorize('update', $book);
 
         $genres = Genre::all();
 
@@ -129,5 +162,31 @@ class BookController extends Controller
         return redirect()
             ->route('books.index')
             ->with('success', '書籍を削除しました。');
+    }
+
+    /**
+     * ★ISBN検索（GET /books/isbn/{isbn}）
+     * 書籍登録フォームから非同期（Ajax）で呼び出される。
+     * 見つかった場合はフォームに埋め込める書籍情報をJSONで返す。
+     * 見つからない・不正な場合は {"error": "..."} を返す（books/create.blade.php のJSが
+     * data.error を見て判定する作りになっているため、キー名は "message" ではなく "error"）。
+     */
+    public function searchByIsbn(string $isbn, GoogleBooksService $googleBooksService): JsonResponse
+    {
+        if (!preg_match('/^\d{13}$/', $isbn)) {
+            return response()->json([
+                'error' => 'ISBNは13桁の数字で指定してください。',
+            ], 422);
+        }
+
+        $result = $googleBooksService->searchByIsbn($isbn);
+
+        if ($result === null) {
+            return response()->json([
+                'error' => '指定されたISBNの書籍が見つかりませんでした。',
+            ], 404);
+        }
+
+        return response()->json($result);
     }
 }

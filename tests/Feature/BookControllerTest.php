@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Book;
 use App\Models\Genre;
 use App\Models\User;
+use App\Models\Review;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
@@ -20,6 +22,7 @@ class BookControllerTest extends TestCase
     #[TestDox('ゲストでも書籍一覧を閲覧できる')]
     public function test_guest_can_view_book_index(): void
     {
+        $this->withoutExceptionHandling(); // ← 一時的に追加
         Book::factory()->count(3)->create();
 
         $response = $this->get(route('books.index'));
@@ -323,4 +326,145 @@ class BookControllerTest extends TestCase
         $response->assertForbidden();
         $this->assertDatabaseHas('books', ['id' => $book->id]);
     }
+    // ---------------------------------------------------------------
+    // ★検索・絞り込み・ソート（books.index）
+    // ---------------------------------------------------------------
+
+    #[TestDox('keywordパラメータでタイトル・著者を検索できる')]
+    public function test_index_filters_by_keyword(): void
+    {
+        Book::factory()->create(['title' => '吾輩は猫である']);
+        Book::factory()->create(['title' => '人を動かす']);
+
+        $response = $this->get(route('books.index', ['keyword' => '猫']));
+
+        $response->assertOk();
+        $response->assertSee('吾輩は猫である');
+        $response->assertDontSee('人を動かす');
+    }
+
+    #[TestDox('genreパラメータでジャンル絞り込みができる')]
+    public function test_index_filters_by_genre(): void
+    {
+        $targetGenre = Genre::factory()->create();
+        $otherGenre = Genre::factory()->create();
+
+        $matchingBook = Book::factory()->create(['title' => '対象ジャンルの本']);
+        $matchingBook->genres()->attach($targetGenre);
+
+        $unrelatedBook = Book::factory()->create(['title' => '無関係な本']);
+        $unrelatedBook->genres()->attach($otherGenre);
+
+        $response = $this->get(route('books.index', ['genre' => $targetGenre->id]));
+
+        $response->assertOk();
+        $response->assertSee('対象ジャンルの本');
+        $response->assertDontSee('無関係な本');
+    }
+
+    #[TestDox('sort=ratingで評価の高い順に並ぶ')]
+    public function test_index_sorts_by_rating_descending(): void
+    {
+        $lowRated = Book::factory()->create();
+        Review::factory()->create(['book_id' => $lowRated->id, 'rating' => 2]);
+
+        $highRated = Book::factory()->create();
+        Review::factory()->create(['book_id' => $highRated->id, 'rating' => 5]);
+
+        $response = $this->get(route('books.index', ['sort' => 'rating']));
+
+        $response->assertOk();
+        $response->assertViewHas('books', function ($books) use ($highRated, $lowRated) {
+            $ids = collect($books->items())->pluck('id')->toArray();
+
+            return array_search($highRated->id, $ids) < array_search($lowRated->id, $ids);
+        });
+    }
+
+    #[TestDox('sort=titleでタイトルの昇順に並ぶ')]
+    public function test_index_sorts_by_title(): void
+    {
+        Book::factory()->create(['title' => 'ぜんぶの本']);
+        Book::factory()->create(['title' => 'あいうえおの本']);
+
+        $response = $this->get(route('books.index', ['sort' => 'title']));
+
+        $response->assertOk();
+        $response->assertViewHas('books', function ($books) {
+            $titles = collect($books->items())->pluck('title')->toArray();
+
+            return array_search('あいうえおの本', $titles) < array_search('ぜんぶの本', $titles);
+        });
+    }
+
+    #[TestDox('不正なsort値を指定するとバリデーションエラーになる')]
+    public function test_index_rejects_invalid_sort_value(): void
+    {
+        $response = $this->get(route('books.index', ['sort' => 'invalid']));
+
+        $response->assertSessionHasErrors('sort');
+    }
+
+    #[TestDox('検索条件はページネーションのリンクに引き継がれる')]
+    public function test_index_preserves_query_string_in_pagination_links(): void
+    {
+        Book::factory()->count(15)->create(['title' => 'キーワード対象の本']);
+
+        $response = $this->get(route('books.index', ['keyword' => 'キーワード']));
+
+        $response->assertOk();
+        $response->assertSee('keyword=' . urlencode('キーワード'), false);
+    }
+
+    // ---------------------------------------------------------------
+    // ★ISBN検索（GET /books/isbn/{isbn}）
+    // ---------------------------------------------------------------
+
+    #[TestDox('ISBN検索は見つかった書籍情報をJSONで返す')]
+    public function test_isbn_search_returns_book_data_when_found(): void
+    {
+        $user = \App\Models\User::factory()->create();
+        $this->actingAs($user);
+
+        Http::fake([
+            'www.googleapis.com/*' => Http::response([
+                'items' => [
+                    ['volumeInfo' => ['title' => '吾輩は猫である', 'authors' => ['夏目漱石']]],
+                ],
+            ], 200),
+        ]);
+
+        $response = $this->getJson('/books/isbn/9784101010014');
+
+        $response->assertOk();
+        $response->assertJsonPath('title', '吾輩は猫である');
+        $response->assertJsonPath('author', '夏目漱石');
+    }
+
+    #[TestDox('ISBN検索で見つからない場合はerrorキー付きで404を返す')]
+    public function test_isbn_search_returns_error_when_not_found(): void
+    {
+        $user = \App\Models\User::factory()->create();
+        $this->actingAs($user);
+        Http::fake([
+            'www.googleapis.com/*' => Http::response(['totalItems' => 0], 200),
+        ]);
+
+        $response = $this->getJson('/books/isbn/9999999999999');
+
+        $response->assertStatus(404);
+        $response->assertJsonStructure(['error']);
+    }
+
+    #[TestDox('13桁でないISBNを指定するとerrorキー付きで422を返す')]
+    public function test_isbn_search_returns_error_for_invalid_format(): void
+    {
+        $user = \App\Models\User::factory()->create();
+        $this->actingAs($user);
+        $response = $this->getJson('/books/isbn/123');
+
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['error']);
+    }
+
 }

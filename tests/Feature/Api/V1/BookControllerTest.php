@@ -100,6 +100,39 @@ class BookControllerTest extends TestCase
         $response->assertJsonValidationErrors('sort');
     }
 
+    #[TestDox('レビューが1件も無い書籍は、reviews_avg_ratingキーがnullとして明示される')]
+    public function test_book_index_shows_null_average_rating_when_no_reviews(): void
+    {
+        $book = Book::factory()->create();
+
+        $response = $this->getJson('/api/v1/books');
+
+        $response->assertOk();
+        $data = collect($response->json('data'));
+        $target = $data->firstWhere('id', $book->id);
+
+        $this->assertArrayHasKey('reviews_avg_rating', $target);
+        $this->assertNull($target['reviews_avg_rating']);
+    }
+
+    #[TestDox('平均評価は小数第1位に丸められる')]
+    public function test_book_index_rounds_average_rating_to_one_decimal_place(): void
+    {
+        $book = Book::factory()->create();
+        Review::factory()->create(['book_id' => $book->id, 'rating' => 5]);
+        Review::factory()->create(['book_id' => $book->id, 'rating' => 5]);
+        Review::factory()->create(['book_id' => $book->id, 'rating' => 4]);
+
+        // (5+5+4)/3 = 4.666... → 小数第1位で 4.7
+        $response = $this->getJson('/api/v1/books');
+
+        $response->assertOk();
+        $data = collect($response->json('data'));
+        $target = $data->firstWhere('id', $book->id);
+
+        $this->assertEquals(4.7, $target['reviews_avg_rating']);
+    }
+
     // ---------------------------------------------------------------
     // AP02: 書籍詳細API（認証不要）
     // ---------------------------------------------------------------
@@ -398,4 +431,6 @@ class BookControllerTest extends TestCase
         $this->assertDatabaseMissing('favorites', ['book_id' => $book->id]);
         $this->assertDatabaseHas('genres', ['id' => $genre->id]);
     }
+
+    
 }
