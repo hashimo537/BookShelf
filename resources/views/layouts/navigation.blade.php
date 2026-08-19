@@ -1,7 +1,7 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     @auth
         @php
-            $unreadNotificationCount = Auth::user()->unreadNotifications->count();
+    $unreadNotificationCount = Auth::user()->unreadNotifications->count();
         @endphp
     @endauth
 
@@ -36,7 +36,8 @@
                     <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
                         {{ __('マイレポート') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('reading-plans.index')" :active="request()->routeIs('reading-plans.*')">
+                    {{-- TODO(Task15): reading_plans実装完了後、route('reading-plans.index')に戻す --}}
+                    <x-nav-link href="#" :active="request()->routeIs('reading-plans.*')">
                         {{ __('読書計画') }}
                     </x-nav-link>
                 </div>
@@ -46,7 +47,9 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 @auth
                     <!-- 通知ベルアイコン -->
-                    <a href="{{ route('notifications.index') }}" class="relative inline-flex items-center px-3 py-2 text-gray-500 hover:text-gray-700">
+                    {{-- TODO(Task15): reading_plans実装完了後、route('reading-plans.index')に戻す --}}
+
+                    <a href="#" class="relative inline-flex items-center px-3 py-2 text-gray-500 hover:text-gray-700">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                         </svg>
@@ -119,13 +122,15 @@
             <x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
                 {{ __('マイレポート') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('reading-plans.index')" :active="request()->routeIs('reading-plans.*')">
+            {{-- TODO(Task15): reading_plans実装完了後、route('reading-plans.index')に戻す --}}
+            <x-responsive-nav-link href="#" :active="request()->routeIs('reading-plans.*')">
                 {{ __('読書計画') }}
             </x-responsive-nav-link>
             @auth
-                <x-responsive-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.*')">
-                    {{ __('通知') }}@if($unreadNotificationCount > 0) <span class="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">{{ $unreadNotificationCount }}</span>@endif
-                </x-responsive-nav-link>
+                {{-- TODO(Task15): reading_plans実装完了後、route('reading-plans.index')に戻す --}}
+                    <x-responsive-nav-link href="#" :active="request()->routeIs('notifications.*')">
+                        {{ __('通知') }}@if($unreadNotificationCount > 0) <span class="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">{{ $unreadNotificationCount }}</span>@endif
+                    </x-responsive-nav-link>
             @endauth
         </div>
 

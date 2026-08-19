@@ -125,4 +125,23 @@ class BookController extends Controller
 
         return response()->noContent();
     }
+
+    /**
+     * ★ISBN検索（GET /books/isbn/{isbn}）
+     * 書籍登録フォームから非同期（Ajax）で呼び出される想定。
+     * 見つかった場合はフォームに埋め込める書籍情報をJSONで返す。
+     */
+    public function searchByIsbn(string $isbn, GoogleBooksService $googleBooksService): JsonResponse
+    {
+        $result = $googleBooksService->searchByIsbn($isbn);
+
+        if ($result === null) {
+            return response()->json([
+                'message' => '指定されたISBNの書籍が見つかりませんでした。',
+            ], 404);
+        }
+
+        return response()->json($result);
+    }
+
 }
