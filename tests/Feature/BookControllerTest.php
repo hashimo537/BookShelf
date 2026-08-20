@@ -356,6 +356,7 @@ class BookControllerTest extends TestCase
         $unrelatedBook->genres()->attach($otherGenre);
 
         $response = $this->get(route('books.index', ['genre' => $targetGenre->id]));
+        
 
         $response->assertOk();
         $response->assertSee('対象ジャンルの本');

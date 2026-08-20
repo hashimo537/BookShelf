@@ -13,6 +13,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
+
+        // ★読書計画：リマインダー通知（3日前・当日・3日後）と自動失効を毎日実行する
+        $schedule->command('reading-plans:process')->daily();
     }
 
     /**
@@ -20,7 +23,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

@@ -11,12 +11,13 @@ class BookSeeder extends Seeder
 {
     /**
      * books テーブルに書籍データを11件投入する。
-     * 登録者は User::first()（山田太郎）とする。
+     * ★応用：登録者は User::first() 固定ではなく、全ユーザーからランダムに割り当てる
+     * （マイ読書レポートで複数ユーザーの所有書籍を表示するため）。
      * firstOrCreate（ISBN重複防止）と genres()->sync() を使用。
      */
     public function run(): void
     {
-        $registeredBy = User::first();
+        $users = User::all();
 
         $books = [
             [
@@ -124,7 +125,7 @@ class BookSeeder extends Seeder
             $book = Book::firstOrCreate(
                 ['isbn' => $data['isbn']],
                 [
-                    'user_id' => $registeredBy->id,
+                    'user_id' => $users->random()->id, // ★応用：ランダムユーザー割当
                     'title' => $data['title'],
                     'author_name' => $data['author'],
                     'published_date' => $data['published_at'],
