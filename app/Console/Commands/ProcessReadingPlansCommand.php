@@ -39,7 +39,7 @@ class ProcessReadingPlansCommand extends Command
             ->with(['user', 'book'])
             ->get();
 
-        foreach ($plans as $plan) {
+        $plans->each(function (ReadingPlan $plan) use ($timing) {
             $alreadySent = $plan->user->notifications()
                 ->where('type', ReadingPlanReminder::class)
                 ->where('data->reading_plan_id', $plan->id)
@@ -47,11 +47,11 @@ class ProcessReadingPlansCommand extends Command
                 ->exists();
 
             if ($alreadySent) {
-                continue;
+                return;
             }
 
             $plan->user->notify(new ReadingPlanReminder($plan, $timing));
-        }
+        });
 
         $this->info("[{$timing}] {$plans->count()}件の計画を処理しました。");
     }

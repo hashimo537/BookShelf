@@ -135,4 +135,35 @@ class ProcessReadingPlansCommandTest extends TestCase
 
         $this->assertDatabaseCount('notifications', 0);
     }
+
+    #[TestDox('完了済みの計画は、期日がリマインダー条件と重なっていても通知が送られない')]
+    public function test_does_not_send_reminder_for_completed_plan_even_if_date_matches(): void
+    {
+        $user = User::factory()->create();
+        ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'target_date' => Carbon::today(), // on_due_dateの条件と一致
+            'status' => ReadingPlanStatus::Completed,
+            'completed_at' => Carbon::yesterday(),
+        ]);
+
+        $this->artisan('reading-plans:process');
+
+        $this->assertDatabaseCount('notifications', 0);
+    }
+
+    #[TestDox('期限切れの計画は、期日がリマインダー条件と重なっていても通知が送られない')]
+    public function test_does_not_send_reminder_for_expired_plan_even_if_date_matches(): void
+    {
+        $user = User::factory()->create();
+        ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'target_date' => Carbon::today()->subDays(3), // three_days_afterの条件と一致
+            'status' => ReadingPlanStatus::Expired,
+        ]);
+
+        $this->artisan('reading-plans:process');
+
+        $this->assertDatabaseCount('notifications', 0);
+    }
 }
