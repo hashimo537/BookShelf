@@ -14,8 +14,9 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
 
-        // ★読書計画：リマインダー通知（3日前・当日・3日後）と自動失効を毎日実行する
-        $schedule->command('reading-plans:process')->daily();
+        // ★読書計画：リマインダー通知（3日前・当日・3日後）と自動失効を毎日20時に実行する
+        // （PM確認済み：2026-08-20回答）
+        $schedule->command('reading-plans:process')->dailyAt('20:00');
     }
 
     /**

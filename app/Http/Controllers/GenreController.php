@@ -55,6 +55,8 @@ class GenreController extends Controller
     {
         $books = $genre->books()
             ->with('genres')
+            ->orderByDesc('books.created_at')
+            ->orderByDesc('books.id') // 同一秒作成でも並び順を確定させる
             ->paginate(10);
 
         return view('genres.show', compact('genre', 'books'));

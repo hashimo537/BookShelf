@@ -22,7 +22,6 @@ class BookControllerTest extends TestCase
     #[TestDox('ゲストでも書籍一覧を閲覧できる')]
     public function test_guest_can_view_book_index(): void
     {
-        $this->withoutExceptionHandling(); // ← 一時的に追加
         Book::factory()->count(3)->create();
 
         $response = $this->get(route('books.index'));

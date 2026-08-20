@@ -321,4 +321,25 @@ class GenreControllerTest extends TestCase
         $response->assertRedirect(route('login'));
         $this->assertDatabaseHas('genres', ['id' => $genre->id]);
     }
+
+    #[TestDox('ジャンル詳細の書籍一覧は新しい順（id降順で確定）で表示される')]
+    public function test_genre_show_orders_books_consistently(): void
+    {
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create();
+
+        $olderBook = Book::factory()->create(['title' => '先に登録した本']);
+        $olderBook->genres()->attach($genre);
+
+        $newerBook = Book::factory()->create(['title' => '後に登録した本']);
+        $newerBook->genres()->attach($genre);
+
+        $response = $this->actingAs($user)->get(route('genres.show', $genre));
+
+        $response->assertViewHas('books', function ($books) use ($newerBook, $olderBook) {
+            $ids = collect($books->items())->pluck('id')->toArray();
+
+            return array_search($newerBook->id, $ids) < array_search($olderBook->id, $ids);
+        });
+    }
 }

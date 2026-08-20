@@ -100,4 +100,23 @@ class FavoriteControllerTest extends TestCase
         $response->assertDontSee('登録していない本');
         $response->assertDontSee('他人がお気に入りの本');
     }
+
+    #[TestDox('お気に入り一覧は書籍一覧と同じ新しい順（id降順で確定）で表示される')]
+    public function test_favorites_index_orders_books_consistently(): void
+    {
+        $user = User::factory()->create();
+
+        $olderBook = Book::factory()->create(['title' => '先に登録した本']);
+        $newerBook = Book::factory()->create(['title' => '後に登録した本']);
+
+        $user->favoriteBooks()->attach([$olderBook->id, $newerBook->id]);
+
+        $response = $this->actingAs($user)->get(route('favorites.index'));
+
+        $response->assertViewHas('books', function ($books) use ($newerBook, $olderBook) {
+            $ids = collect($books->items())->pluck('id')->toArray();
+
+            return array_search($newerBook->id, $ids) < array_search($olderBook->id, $ids);
+        });
+    }
 }

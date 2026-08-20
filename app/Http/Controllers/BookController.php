@@ -135,7 +135,7 @@ class BookController extends Controller
     {
         $book->load([
             'genres',
-            'reviews' => fn ($query) => $query->latest(),
+            'reviews' => fn ($query) => $query->orderByDesc('created_at')->orderByDesc('id'),
             'reviews.user',
             'reviews.likedByUsers',
         ]);

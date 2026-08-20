@@ -21,6 +21,7 @@ class FavoriteController extends Controller
             ->with('genres')
             ->withAvg('reviews', 'rating')
             ->orderByDesc('books.created_at')
+            ->orderByDesc('books.id') // 同一秒作成でも並び順を確定させる
             ->paginate(10);
 
         return view('favorites.index', compact('books'));
