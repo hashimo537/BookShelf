@@ -32,10 +32,10 @@ class ReadingPlanSeeder extends Seeder
             return;
         }
 
-        $books = Book::inRandomOrder()->take(8)->get();
+        $books = Book::inRandomOrder()->take(10)->get();
 
-        if ($books->count() < 8) {
-            $this->command?->warn('ReadingPlanSeeder: 書籍が8冊未満のため、一部シナリオで書籍が重複します。');
+        if ($books->count() < 10) {
+            $this->command?->warn('ReadingPlanSeeder: 書籍が10冊未満のため、一部シナリオで書籍が重複します。');
         }
 
         // ① リマインダー「3日前」が発火する進行中の計画
@@ -68,6 +68,20 @@ class ReadingPlanSeeder extends Seeder
         // ⑧ 完了済みの書籍(⑥と同じ)に対する新規の進行中計画
         //   （PM確認済み：完了済みなら同一書籍でも新規作成できることの確認用）
         $this->createPlan($mainUser, $books[5], Carbon::today()->addDays(14), ReadingPlanStatus::InProgress);
+
+        // ⑨ 完了済みだが、期日が「当日リマインダー」の条件と偶然重なる計画
+        //   （ステータスが進行中でなければ、期日が一致していても通知が送られないことの確認用）
+        $this->createPlan(
+            $mainUser,
+            $books[8],
+            Carbon::today(),
+            ReadingPlanStatus::Completed,
+            completedAt: Carbon::today()->subDay()
+        );
+
+        // ⑩ 期限切れだが、期日が「3日後リマインダー」の条件と偶然重なる計画
+        //   （期限切れの計画にも通知が送られないことの確認用）
+        $this->createPlan($mainUser, $books[9], Carbon::today()->subDays(3), ReadingPlanStatus::Expired);
 
         // --- 認可判定の確認用：別ユーザーのデータ ---
         // 他人の計画を編集・削除・読了しようとすると403になることの確認に使う。

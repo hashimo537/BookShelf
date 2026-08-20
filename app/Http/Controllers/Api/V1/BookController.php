@@ -10,6 +10,7 @@ use App\Http\Resources\Api\V1\BookResource;
 use App\Models\Book;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class BookController extends Controller
 {
@@ -68,21 +69,31 @@ class BookController extends Controller
      * Sanctumトークン必須（routes/api.phpのauth:sanctumミドルウェアで担保）。
      * 登録者IDはリクエストボディではなく、認証済みユーザーから自動的に取得する。
      */
+    /**
+     * ★AP03: 書籍登録API（POST /api/v1/books）
+     * Sanctumトークン必須（routes/api.phpのauth:sanctumミドルウェアで担保）。
+     * 登録者IDはリクエストボディではなく、認証済みユーザーから自動的に取得する。
+     */
     public function store(StoreBookRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
-        $book = Book::create([
-            'user_id' => $request->user()->id,
-            'title' => $validated['title'],
-            'author_name' => $validated['author_name'],
-            'isbn' => $validated['isbn'],
-            'published_date' => $validated['published_date'],
-            'description' => $validated['description'] ?? null,
-            'image_url' => $validated['image_url'] ?? null,
-        ]);
+        $book = DB::transaction(function () use ($validated, $request) {
+            $book = Book::create([
+                'user_id' => $request->user()->id,
+                'title' => $validated['title'],
+                'author_name' => $validated['author_name'],
+                'isbn' => $validated['isbn'],
+                'published_date' => $validated['published_date'],
+                'description' => $validated['description'] ?? null,
+                'image_url' => $validated['image_url'] ?? null,
+            ]);
 
-        $book->genres()->sync($validated['genres']);
+            $book->genres()->sync($validated['genres']);
+
+            return $book;
+        });
+
         $book->load('genres');
 
         return (new BookResource($book))
@@ -98,16 +109,19 @@ class BookController extends Controller
     {
         $validated = $request->validated();
 
-        $book->update([
-            'title' => $validated['title'],
-            'author_name' => $validated['author_name'],
-            'isbn' => $validated['isbn'],
-            'published_date' => $validated['published_date'],
-            'description' => $validated['description'] ?? null,
-            'image_url' => $validated['image_url'] ?? null,
-        ]);
+        DB::transaction(function () use ($validated, $book) {
+            $book->update([
+                'title' => $validated['title'],
+                'author_name' => $validated['author_name'],
+                'isbn' => $validated['isbn'],
+                'published_date' => $validated['published_date'],
+                'description' => $validated['description'] ?? null,
+                'image_url' => $validated['image_url'] ?? null,
+            ]);
 
-        $book->genres()->sync($validated['genres']);
+            $book->genres()->sync($validated['genres']);
+        });
+
         $book->load('genres');
 
         return new BookResource($book);
