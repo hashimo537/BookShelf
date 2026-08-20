@@ -82,9 +82,9 @@ class BookController extends Controller
             $book = Book::create([
                 'user_id' => $request->user()->id,
                 'title' => $validated['title'],
-                'author_name' => $validated['author'],
+                'author_name' => $validated['author'] ?? null,
                 'isbn' => $validated['isbn'],
-                'published_date' => $validated['published_date'],
+                'published_date' => $validated['published_date'] ?? null,
                 'description' => $validated['description'] ?? null,
                 'image_url' => $validated['image_url'] ?? null,
             ]);
@@ -112,9 +112,9 @@ class BookController extends Controller
         DB::transaction(function () use ($validated, $book) {
             $book->update([
                 'title' => $validated['title'],
-                'author_name' => $validated['author'],
+                'author_name' => $validated['author'] ?? null,
                 'isbn' => $validated['isbn'],
-                'published_date' => $validated['published_date'],
+                'published_date' => $validated['published_date'] ?? null,
                 'description' => $validated['description'] ?? null,
                 'image_url' => $validated['image_url'] ?? null,
             ]);

@@ -466,4 +466,72 @@ class BookControllerTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonStructure(['error']);
     }
+
+    #[TestDox('著者名が未入力でも書籍を登録できる（★応用：nullable化）')]
+    public function test_authenticated_user_can_store_book_without_author(): void
+    {
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create();
+
+        $payload = [
+            'title' => '著者不明の本',
+            'author' => '',
+            'isbn' => '1234567890124',
+            'published_date' => '2020-01-01',
+            'genres' => [$genre->id],
+        ];
+
+        $response = $this->actingAs($user)->post(route('books.store'), $payload);
+
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('books', [
+            'title' => '著者不明の本',
+            'author_name' => null,
+        ]);
+    }
+
+    #[TestDox('出版日が未入力でも書籍を登録できる（★応用：nullable化）')]
+    public function test_authenticated_user_can_store_book_without_published_date(): void
+    {
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create();
+
+        $payload = [
+            'title' => '出版日不明の本',
+            'author' => 'テスト太郎',
+            'isbn' => '1234567890125',
+            'published_date' => '',
+            'genres' => [$genre->id],
+        ];
+
+        $response = $this->actingAs($user)->post(route('books.store'), $payload);
+
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('books', [
+            'title' => '出版日不明の本',
+            'published_date' => null,
+        ]);
+    }
+
+    #[TestDox('著者名・出版日ともに未入力でも書籍を登録できる（★応用：nullable化）')]
+    public function test_authenticated_user_can_store_book_without_author_and_published_date(): void
+    {
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create();
+
+        $payload = [
+            'title' => 'タイトルのみの本',
+            'isbn' => '1234567890126',
+            'genres' => [$genre->id],
+        ];
+
+        $response = $this->actingAs($user)->post(route('books.store'), $payload);
+
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('books', [
+            'title' => 'タイトルのみの本',
+            'author_name' => null,
+            'published_date' => null,
+        ]);
+    }
 }
