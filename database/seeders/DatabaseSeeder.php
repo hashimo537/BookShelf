@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
      * 4. ReviewSeeder
      * 5. FavoriteSeeder
      * 6. ReviewLikeSeeder
+     * 7. ReadingPlanSeeder（★応用：Book・Userの投入後に実行する必要がある）
      *
      * `sail artisan db:seed` でまとめて投入できる。
      */
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
             ReviewSeeder::class,
             FavoriteSeeder::class,
             ReviewLikeSeeder::class,
+            ReadingPlanSeeder::class,
         ]);
     }
 }

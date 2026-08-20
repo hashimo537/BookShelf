@@ -37,19 +37,19 @@ class BookController extends Controller
             })
             ->when(
                 ($validated['sort'] ?? 'newest') === 'oldest',
-                fn($query) => $query->oldest()
+                fn($query) => $query->orderBy('created_at')->orderBy('id')
             )
             ->when(
                 ($validated['sort'] ?? 'newest') === 'rating',
-                fn($query) => $query->orderByDesc('reviews_avg_rating')
+                fn($query) => $query->orderByDesc('reviews_avg_rating')->orderByDesc('id')
             )
             ->when(
                 ($validated['sort'] ?? 'newest') === 'title',
-                fn($query) => $query->orderBy('title')
+                fn($query) => $query->orderBy('title')->orderBy('id')
             )
             ->when(
                 ($validated['sort'] ?? 'newest') === 'newest',
-                fn($query) => $query->latest()
+                fn($query) => $query->orderByDesc('created_at')->orderByDesc('id')
             )
             ->paginate(10)
             ->withQueryString(); // ページネーションリンクに検索条件を引き継ぐ
