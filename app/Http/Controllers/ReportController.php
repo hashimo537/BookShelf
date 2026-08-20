@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Review;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class ReportController extends Controller
@@ -31,7 +33,7 @@ class ReportController extends Controller
     /**
      * 基本サマリー（総レビュー数・読了冊数・平均評価）を集計する。
      *
-     * @param  \Illuminate\Support\Collection<int, \App\Models\Review>  $reviews
+     * @param  Collection<int, Review>  $reviews
      * @return array{total_reviews: int, books_read: int, average_rating: float}
      */
     private function buildSummary($reviews): array
@@ -47,19 +49,19 @@ class ReportController extends Controller
      * 評価1〜5ごとのレビュー件数を集計する。
      * インデックス0〜4がそれぞれ評価1〜5に対応する（Blade側で $index + 1 として使用）。
      *
-     * @param  \Illuminate\Support\Collection<int, \App\Models\Review>  $reviews
-     * @return \Illuminate\Support\Collection<int, int>
+     * @param  Collection<int, Review>  $reviews
+     * @return Collection<int, int>
      */
     private function buildRatingDistribution($reviews)
     {
         return collect(range(1, 5))
-            ->map(fn(int $rating) => $reviews->where('rating', $rating)->count());
+            ->map(fn (int $rating) => $reviews->where('rating', $rating)->count());
     }
 
     /**
      * 4以上の評価を付けた書籍を上位5件抽出する。
      *
-     * @param  \Illuminate\Support\Collection<int, \App\Models\Review>  $reviews
+     * @param  Collection<int, Review>  $reviews
      * @return array<int, array{id: int, title: string, author: string, rating: int}>
      */
     private function buildTopRatedBooks($reviews): array
@@ -68,7 +70,7 @@ class ReportController extends Controller
             ->where('rating', '>=', 4)
             ->sortByDesc('rating')
             ->take(5)
-            ->map(fn($review) => [
+            ->map(fn ($review) => [
                 'id' => $review->book->id,
                 'title' => $review->book->title,
                 'author' => $review->book->author,
@@ -82,17 +84,17 @@ class ReportController extends Controller
      * ジャンルごとの平均評価・レビュー件数を集計し、平均評価が高い順に上位5件を返す。
      * 1件のレビューは、紐づく全ジャンルの集計対象に含まれる（多対多のため）。
      *
-     * @param  \Illuminate\Support\Collection<int, \App\Models\Review>  $reviews
+     * @param  Collection<int, Review>  $reviews
      * @return array<int, array{id: int, name: string, count: int, average_rating: float}>
      */
     private function buildGenreRatings($reviews): array
     {
         return $reviews
-            ->flatMap(fn($review) => $review->book->genres->map(fn($genre) => [
+            ->flatMap(fn ($review) => $review->book->genres->map(fn ($genre) => [
                 'genre' => $genre,
                 'rating' => $review->rating,
             ]))
-            ->groupBy(fn($item) => $item['genre']->id)
+            ->groupBy(fn ($item) => $item['genre']->id)
             ->map(function ($items) {
                 $genre = $items->first()['genre'];
                 $ratings = $items->pluck('rating');

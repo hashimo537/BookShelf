@@ -26,7 +26,7 @@ class ReadingPlanSeeder extends Seeder
         $mainUser = User::where('email', 'yamada@example.com')->first();
         $otherUser = User::where('email', 'suzuki@example.com')->first();
 
-        if (!$mainUser || !$otherUser) {
+        if (! $mainUser || ! $otherUser) {
             $this->command?->warn('ReadingPlanSeeder: UserSeederが先に実行されている必要があります。スキップします。');
 
             return;

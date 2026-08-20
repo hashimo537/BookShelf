@@ -48,7 +48,7 @@ class NotificationControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('notifications.index'));
 
-        $response->assertViewHas('notifications', fn($notifications) => $notifications->count() === 1);
+        $response->assertViewHas('notifications', fn ($notifications) => $notifications->count() === 1);
     }
 
     #[TestDox('通知を既読にできる')]

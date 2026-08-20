@@ -59,7 +59,7 @@ class ReportControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('reports.index'));
 
-        $response->assertViewHas('stats', fn($stats) => $stats['summary']['average_rating'] === 0.0);
+        $response->assertViewHas('stats', fn ($stats) => $stats['summary']['average_rating'] === 0.0);
     }
 
     #[TestDox('同じ書籍に複数回レビューしても、読了冊数は重複せず1冊として数えられる')]
@@ -72,7 +72,7 @@ class ReportControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('reports.index'));
 
-        $response->assertViewHas('stats', fn($stats) => $stats['summary']['books_read'] === 1);
+        $response->assertViewHas('stats', fn ($stats) => $stats['summary']['books_read'] === 1);
     }
 
     #[TestDox('評価分布は1〜5の各評価件数を正しく集計する')]
@@ -105,10 +105,10 @@ class ReportControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('reports.index'));
 
-        $response->assertViewHas('stats', function ($stats) use ($highRatedBook, $lowRatedBook) {
+        $response->assertViewHas('stats', function ($stats) {
             $titles = collect($stats['top_rated_books'])->pluck('title');
 
-            return $titles->contains('高評価の本') && !$titles->contains('低評価の本');
+            return $titles->contains('高評価の本') && ! $titles->contains('低評価の本');
         });
     }
 
@@ -124,7 +124,7 @@ class ReportControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('reports.index'));
 
-        $response->assertViewHas('stats', fn($stats) => count($stats['top_rated_books']) === 5);
+        $response->assertViewHas('stats', fn ($stats) => count($stats['top_rated_books']) === 5);
     }
 
     #[TestDox('4以上の評価が1件も無い場合、高評価書籍TOP5は空になる')]
@@ -135,7 +135,7 @@ class ReportControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('reports.index'));
 
-        $response->assertViewHas('stats', fn($stats) => count($stats['top_rated_books']) === 0);
+        $response->assertViewHas('stats', fn ($stats) => count($stats['top_rated_books']) === 0);
         $response->assertSee('4星以上の書籍がありません');
     }
 
@@ -171,7 +171,7 @@ class ReportControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('reports.index'));
 
-        $response->assertViewHas('stats', fn($stats) => count($stats['genre_ratings']) === 0);
+        $response->assertViewHas('stats', fn ($stats) => count($stats['genre_ratings']) === 0);
         $response->assertSee('ジャンルが設定された書籍のレビューがありません');
     }
 
@@ -189,7 +189,7 @@ class ReportControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('reports.index'));
 
-        $response->assertViewHas('stats', fn($stats) => count($stats['genre_ratings']) === 5);
+        $response->assertViewHas('stats', fn ($stats) => count($stats['genre_ratings']) === 5);
     }
 
     #[TestDox('レポートには自分のレビューのみが反映され、他人のレビューは含まれない')]

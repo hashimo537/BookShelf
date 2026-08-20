@@ -1,4 +1,5 @@
 <?php
+
 // routes/api.php
 
 use App\Http\Controllers\Api\V1\AuthController;

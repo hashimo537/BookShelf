@@ -30,7 +30,7 @@ class GoogleBooksServiceTest extends TestCase
             ], 200),
         ]);
 
-        $service = new GoogleBooksService();
+        $service = new GoogleBooksService;
         $result = $service->searchByIsbn('9784101010014');
 
         $this->assertNotNull($result);
@@ -51,7 +51,7 @@ class GoogleBooksServiceTest extends TestCase
             ], 200),
         ]);
 
-        $service = new GoogleBooksService();
+        $service = new GoogleBooksService;
         $result = $service->searchByIsbn('1111111111111');
 
         $this->assertEquals('著者A、著者B', $result['author']);
@@ -68,7 +68,7 @@ class GoogleBooksServiceTest extends TestCase
             ], 200),
         ]);
 
-        $service = new GoogleBooksService();
+        $service = new GoogleBooksService;
         $result = $service->searchByIsbn('2222222222222');
 
         $this->assertEquals('2020-01-01', $result['published_date']);
@@ -85,7 +85,7 @@ class GoogleBooksServiceTest extends TestCase
             ], 200),
         ]);
 
-        $service = new GoogleBooksService();
+        $service = new GoogleBooksService;
         $result = $service->searchByIsbn('3333333333333');
 
         $this->assertEquals('2020-05-01', $result['published_date']);
@@ -98,7 +98,7 @@ class GoogleBooksServiceTest extends TestCase
             'www.googleapis.com/*' => Http::response(['totalItems' => 0], 200),
         ]);
 
-        $service = new GoogleBooksService();
+        $service = new GoogleBooksService;
         $result = $service->searchByIsbn('9999999999999');
 
         $this->assertNull($result);
@@ -111,7 +111,7 @@ class GoogleBooksServiceTest extends TestCase
             'www.googleapis.com/*' => Http::response(['error' => 'Internal Server Error'], 500),
         ]);
 
-        $service = new GoogleBooksService();
+        $service = new GoogleBooksService;
         $result = $service->searchByIsbn('4444444444444');
 
         $this->assertNull($result);

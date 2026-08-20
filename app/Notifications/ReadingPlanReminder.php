@@ -13,8 +13,7 @@ class ReadingPlanReminder extends Notification
     public function __construct(
         public ReadingPlan $readingPlan,
         public string $timing,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<int, string>

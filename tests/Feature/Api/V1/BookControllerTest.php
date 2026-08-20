@@ -431,6 +431,4 @@ class BookControllerTest extends TestCase
         $this->assertDatabaseMissing('favorites', ['book_id' => $book->id]);
         $this->assertDatabaseHas('genres', ['id' => $genre->id]);
     }
-
-    
 }
