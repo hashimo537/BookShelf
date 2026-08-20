@@ -4,10 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Book;
 use App\Models\Genre;
-use App\Models\User;
 use App\Models\Review;
-use Illuminate\Support\Facades\Http;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 
@@ -356,7 +356,6 @@ class BookControllerTest extends TestCase
         $unrelatedBook->genres()->attach($otherGenre);
 
         $response = $this->get(route('books.index', ['genre' => $targetGenre->id]));
-        
 
         $response->assertOk();
         $response->assertSee('対象ジャンルの本');
@@ -414,7 +413,7 @@ class BookControllerTest extends TestCase
         $response = $this->get(route('books.index', ['keyword' => 'キーワード']));
 
         $response->assertOk();
-        $response->assertSee('keyword=' . urlencode('キーワード'), false);
+        $response->assertSee('keyword='.urlencode('キーワード'), false);
     }
 
     // ---------------------------------------------------------------
@@ -424,7 +423,7 @@ class BookControllerTest extends TestCase
     #[TestDox('ISBN検索は見つかった書籍情報をJSONで返す')]
     public function test_isbn_search_returns_book_data_when_found(): void
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $this->actingAs($user);
 
         Http::fake([
@@ -445,7 +444,7 @@ class BookControllerTest extends TestCase
     #[TestDox('ISBN検索で見つからない場合はerrorキー付きで404を返す')]
     public function test_isbn_search_returns_error_when_not_found(): void
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $this->actingAs($user);
         Http::fake([
             'www.googleapis.com/*' => Http::response(['totalItems' => 0], 200),
@@ -460,12 +459,11 @@ class BookControllerTest extends TestCase
     #[TestDox('13桁でないISBNを指定するとerrorキー付きで422を返す')]
     public function test_isbn_search_returns_error_for_invalid_format(): void
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $this->actingAs($user);
         $response = $this->getJson('/books/isbn/123');
 
         $response->assertStatus(422);
         $response->assertJsonStructure(['error']);
     }
-
 }

@@ -24,7 +24,7 @@ class ReadingPlanController extends Controller
         $readingPlans = $request->user()
             ->readingPlans()
             ->with('book')
-            ->when($currentStatus !== '', fn($query) => $query->where('status', $currentStatus))
+            ->when($currentStatus !== '', fn ($query) => $query->where('status', $currentStatus))
             ->latest('target_date')
             ->get();
 

@@ -32,7 +32,7 @@ class AuthenticationTest extends TestCase
         $response = $this->actingAs($user)->get(route('register'));
 
         // Fortifyのguestミドルウェアにより、ログイン済みなら登録画面にはアクセスできない
-        
+
         $response->assertRedirect(route('home'));
     }
 
@@ -87,7 +87,6 @@ class AuthenticationTest extends TestCase
         $response->assertSessionHasErrors(['name' => '名前は255文字以内で入力してください。']);
         $this->assertDatabaseCount('users', 0);
     }
-
 
     #[TestDox('メールアドレスが未入力の場合は会員登録に失敗する')]
     public function test_registration_fails_when_email_is_missing(): void
@@ -148,8 +147,6 @@ class AuthenticationTest extends TestCase
         $response->assertSessionHasErrors(['password' => 'パスワードは8文字以上で入力してください。']);
         $this->assertDatabaseCount('users', 0);
     }
-
-
 
     #[TestDox('既に登録済みのメールアドレスでは会員登録に失敗する')]
     public function test_registration_fails_when_email_already_taken(): void

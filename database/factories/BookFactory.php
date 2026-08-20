@@ -2,11 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\Book;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Book>
+ * @extends Factory<Book>
  */
 class BookFactory extends Factory
 {
@@ -19,7 +20,7 @@ class BookFactory extends Factory
             'isbn' => fake()->unique()->numerify('#############'), // 13桁
             'published_date' => fake()->date(),
             'description' => fake()->paragraph(),
-            'image_url' => 'https://placehold.co/200x300/e2e8f0/475569?text=' . fake()->numberBetween(1, 999),
+            'image_url' => 'https://placehold.co/200x300/e2e8f0/475569?text='.fake()->numberBetween(1, 999),
         ];
     }
 }

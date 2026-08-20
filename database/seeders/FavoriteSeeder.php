@@ -53,7 +53,7 @@ class FavoriteSeeder extends Seeder
         foreach ($favorites as $email => $isbns) {
             $user = User::where('email', $email)->first();
 
-            if (!$user) {
+            if (! $user) {
                 continue;
             }
 

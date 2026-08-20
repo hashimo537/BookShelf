@@ -33,23 +33,23 @@ class BookController extends Controller
                 });
             })
             ->when($validated['genre'] ?? null, function ($query, $genreId) {
-                $query->whereHas('genres', fn($q) => $q->where('genres.id', $genreId));
+                $query->whereHas('genres', fn ($q) => $q->where('genres.id', $genreId));
             })
             ->when(
                 ($validated['sort'] ?? 'newest') === 'oldest',
-                fn($query) => $query->orderBy('created_at')->orderBy('id')
+                fn ($query) => $query->orderBy('created_at')->orderBy('id')
             )
             ->when(
                 ($validated['sort'] ?? 'newest') === 'rating',
-                fn($query) => $query->orderByDesc('reviews_avg_rating')->orderByDesc('id')
+                fn ($query) => $query->orderByDesc('reviews_avg_rating')->orderByDesc('id')
             )
             ->when(
                 ($validated['sort'] ?? 'newest') === 'title',
-                fn($query) => $query->orderBy('title')->orderBy('id')
+                fn ($query) => $query->orderBy('title')->orderBy('id')
             )
             ->when(
                 ($validated['sort'] ?? 'newest') === 'newest',
-                fn($query) => $query->orderByDesc('created_at')->orderByDesc('id')
+                fn ($query) => $query->orderByDesc('created_at')->orderByDesc('id')
             )
             ->paginate(10)
             ->withQueryString(); // ページネーションリンクに検索条件を引き継ぐ
@@ -102,7 +102,7 @@ class BookController extends Controller
     {
         $book->load([
             'genres',
-            'reviews' => fn($query) => $query->latest(),
+            'reviews' => fn ($query) => $query->latest(),
             'reviews.user',
             'reviews.likedByUsers',
         ]);
@@ -173,7 +173,7 @@ class BookController extends Controller
      */
     public function searchByIsbn(string $isbn, GoogleBooksService $googleBooksService): JsonResponse
     {
-        if (!preg_match('/^\d{13}$/', $isbn)) {
+        if (! preg_match('/^\d{13}$/', $isbn)) {
             return response()->json([
                 'error' => 'ISBNは13桁の数字で指定してください。',
             ], 422);

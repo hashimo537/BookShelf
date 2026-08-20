@@ -34,7 +34,7 @@ class FavoriteController extends Controller
     {
         $result = $request->user()->favoriteBooks()->toggle($book->id);
 
-        $message = !empty($result['attached'])
+        $message = ! empty($result['attached'])
             ? 'お気に入りに追加しました。'
             : 'お気に入りから削除しました。';
 

@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -15,19 +17,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $title
  * @property string $author_name
  * @property string $isbn
- * @property \Illuminate\Support\Carbon $published_date
+ * @property Carbon $published_date
  * @property string|null $description
  * @property string|null $image_url
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read mixed $author
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $favoritedByUsers
+ * @property-read Collection<int, User> $favoritedByUsers
  * @property-read int|null $favorited_by_users_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Genre> $genres
+ * @property-read Collection<int, Genre> $genres
  * @property-read int|null $genres_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
+ * @property-read Collection<int, Review> $reviews
  * @property-read int|null $reviews_count
- * @property-read \App\Models\User $user
+ * @property-read User $user
+ *
  * @method static \Database\Factories\BookFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Book newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Book newQuery()
@@ -42,6 +45,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder|Book whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Book whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Book whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class Book extends Model
@@ -68,7 +72,7 @@ class Book extends Model
     protected function author(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->author_name,
+            get: fn () => $this->author_name,
         );
     }
 
@@ -103,6 +107,7 @@ class Book extends Model
     {
         return $this->belongsToMany(User::class, 'favorites');
     }
+
     /**
      * この書籍のレビュー平均評価を計算する（小数第2位まで）。
      * レビューが1件も無い場合はnullを返す。
