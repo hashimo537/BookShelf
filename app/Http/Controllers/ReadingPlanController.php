@@ -25,7 +25,8 @@ class ReadingPlanController extends Controller
             ->readingPlans()
             ->with('book')
             ->when($currentStatus !== '', fn ($query) => $query->where('status', $currentStatus))
-            ->latest('target_date')
+            ->orderByDesc('target_date')
+            ->orderByDesc('id') // 同一日付でも並び順を確定させる
             ->get();
 
         return view('reading-plans.index', compact('readingPlans', 'currentStatus'));
@@ -56,7 +57,7 @@ class ReadingPlanController extends Controller
 
         return redirect()
             ->route('reading-plans.index')
-            ->with('success', '読書計画を登録しました。');
+            ->with('success', '計画を作成しました。');
     }
 
     /**
@@ -109,7 +110,7 @@ class ReadingPlanController extends Controller
 
         return redirect()
             ->route('reading-plans.index')
-            ->with('success', '読了しました。お疲れさまでした。');
+            ->with('success', '読書計画を完了しました。');
     }
 
     /**

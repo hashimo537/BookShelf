@@ -16,7 +16,8 @@ class NotificationController extends Controller
     {
         $notifications = $request->user()
             ->notifications()
-            ->latest()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id') // 同一秒作成でも並び順を確定させる
             ->get();
 
         return view('notifications.index', compact('notifications'));
@@ -34,6 +35,6 @@ class NotificationController extends Controller
 
         return redirect()
             ->route('notifications.index')
-            ->with('success', '既読にしました。');
+            ->with('success', '通知を既読にしました。');
     }
 }

@@ -15,6 +15,12 @@ class ReadingPlanSeeder extends Seeder
      * ★応用：読書計画機能の各種挙動（リマインダー発火/未発火、自動失効、
      * 認可判定）を採点時に網羅的に確認できるダミーデータを投入する。
      *
+     * PM確認済み（2026-08-20回答）の仕様を反映：
+     * - リマインダーは3日前・当日・3日後の3タイミング
+     * - 自動失効は「期限当日」のバッチ実行で発生する（3日後や4日後ではない）
+     * - 期限切れになった後も、3日後リマインダーは送られる（レコードも残る）
+     * - 期限切れの計画は、期日を未来日に変更すれば進行中に復帰できる
+     *
      * 日付はすべて Carbon::today() を起点とした相対指定にしているため、
      * 採点日が変わっても同じシナリオが再現される。
      *
@@ -32,23 +38,26 @@ class ReadingPlanSeeder extends Seeder
             return;
         }
 
-        $books = Book::inRandomOrder()->take(10)->get();
+        $books = Book::inRandomOrder()->take(9)->get();
 
-        if ($books->count() < 10) {
-            $this->command?->warn('ReadingPlanSeeder: 書籍が10冊未満のため、一部シナリオで書籍が重複します。');
+        if ($books->count() < 9) {
+            $this->command?->warn('ReadingPlanSeeder: 書籍が9冊未満のため、一部シナリオで書籍が重複します。');
         }
 
         // ① リマインダー「3日前」が発火する進行中の計画
         $this->createPlan($mainUser, $books[0], Carbon::today()->addDays(3), ReadingPlanStatus::InProgress);
 
-        // ② リマインダー「当日」が発火する進行中の計画
+        // ② リマインダー「当日」が発火し、同じバッチ実行内で自動失効もする進行中の計画
+        //   （PM確認済み：当日リマインダーと自動失効は同じバッチ実行の中で起きる）
         $this->createPlan($mainUser, $books[1], Carbon::today(), ReadingPlanStatus::InProgress);
 
-        // ③ リマインダー「3日後」が発火する進行中の計画
-        $this->createPlan($mainUser, $books[2], Carbon::today()->subDays(3), ReadingPlanStatus::InProgress);
+        // ③ 既に期限切れだが、期日が「3日後リマインダー」の条件に一致する計画
+        //   （PM確認済み：期限切れになった後も3日後リマインダーは送られる）
+        $this->createPlan($mainUser, $books[2], Carbon::today()->subDays(3), ReadingPlanStatus::Expired);
 
-        // ④ 自動失効バッチの対象になる進行中の計画（期日から4日経過＝失効条件を満たす）
-        $this->createPlan($mainUser, $books[3], Carbon::today()->subDays(4), ReadingPlanStatus::InProgress);
+        // ④ 期日を大幅に過ぎているのに進行中のまま（バッチが数日動かなかった想定の
+        //   キャッチアップシナリオ）。当日ちょうどでなくても失効することの確認用
+        $this->createPlan($mainUser, $books[3], Carbon::today()->subDays(10), ReadingPlanStatus::InProgress);
 
         // ⑤ どの通知条件にも合致しない進行中の計画（未発火であることの確認用）
         $this->createPlan($mainUser, $books[4], Carbon::today()->addDays(10), ReadingPlanStatus::InProgress);
@@ -63,14 +72,14 @@ class ReadingPlanSeeder extends Seeder
         );
 
         // ⑦ 既に期限切れの計画（編集画面で期日変更→進行中に復帰できることの確認用）
-        $this->createPlan($mainUser, $books[6], Carbon::today()->subDays(10), ReadingPlanStatus::Expired);
+        $this->createPlan($mainUser, $books[6], Carbon::today()->subDays(20), ReadingPlanStatus::Expired);
 
         // ⑧ 完了済みの書籍(⑥と同じ)に対する新規の進行中計画
         //   （PM確認済み：完了済みなら同一書籍でも新規作成できることの確認用）
         $this->createPlan($mainUser, $books[5], Carbon::today()->addDays(14), ReadingPlanStatus::InProgress);
 
         // ⑨ 完了済みだが、期日が「当日リマインダー」の条件と偶然重なる計画
-        //   （ステータスが進行中でなければ、期日が一致していても通知が送られないことの確認用）
+        //   （ステータスが進行中でなければ、期日が一致していても通知・失効されないことの確認用）
         $this->createPlan(
             $mainUser,
             $books[8],
@@ -78,10 +87,6 @@ class ReadingPlanSeeder extends Seeder
             ReadingPlanStatus::Completed,
             completedAt: Carbon::today()->subDay()
         );
-
-        // ⑩ 期限切れだが、期日が「3日後リマインダー」の条件と偶然重なる計画
-        //   （期限切れの計画にも通知が送られないことの確認用）
-        $this->createPlan($mainUser, $books[9], Carbon::today()->subDays(3), ReadingPlanStatus::Expired);
 
         // --- 認可判定の確認用：別ユーザーのデータ ---
         // 他人の計画を編集・削除・読了しようとすると403になることの確認に使う。
