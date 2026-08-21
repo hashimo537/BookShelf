@@ -108,6 +108,30 @@ class GenreControllerTest extends TestCase
     // ---------------------------------------------------------------
     // 登録（store）
     // ---------------------------------------------------------------
+    #[TestDox('ジャンル登録成功時「ジャンルを作成しました」のフラッシュメッセージが表示される')]
+    public function test_store_shows_correct_flash_message(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('genres.store'), [
+            'name' => 'ホラー',
+        ]);
+
+        $response->assertSessionHas('success', 'ジャンルを作成しました。');
+    }
+
+    #[TestDox('使用中ジャンルの削除失敗時、指定の文言でエラーメッセージが表示される')]
+    public function test_deleting_used_genre_shows_correct_error_message(): void
+    {
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create();
+        $book = Book::factory()->create();
+        $book->genres()->attach($genre);
+
+        $response = $this->actingAs($user)->delete(route('genres.destroy', $genre));
+
+        $response->assertSessionHas('error', 'このジャンルには書籍が紐づいている為削除できません。');
+    }
 
     #[TestDox('未ログイン状態ではジャンル登録画面にアクセスできない')]
     public function test_guest_cannot_view_create_page(): void

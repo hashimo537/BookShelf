@@ -34,6 +34,30 @@ class BookControllerTest extends TestCase
         ]);
     }
 
+    #[TestDox('書籍一覧APIはsort=ratingで評価の高い順に並び、レビューのない書籍は最後に表示される')]
+    public function test_book_index_sorts_by_rating_and_puts_unreviewed_books_last(): void
+    {
+        $lowRated = Book::factory()->create();
+        Review::factory()->create(['book_id' => $lowRated->id, 'rating' => 2]);
+
+        $highRated = Book::factory()->create();
+        Review::factory()->create(['book_id' => $highRated->id, 'rating' => 5]);
+
+        $unreviewed = Book::factory()->create(); // レビュー無し
+
+        $response = $this->getJson('/api/v1/books?sort=rating');
+
+        $response->assertOk();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+
+        $highPos = array_search($highRated->id, $ids);
+        $lowPos = array_search($lowRated->id, $ids);
+        $unreviewedPos = array_search($unreviewed->id, $ids);
+
+        $this->assertTrue($highPos < $lowPos);
+        $this->assertTrue($lowPos < $unreviewedPos);
+    }
+
     #[TestDox('書籍一覧APIのレスポンスにはジャンル情報・平均評価・レビュー件数が正しく含まれる')]
     public function test_book_index_includes_genres_average_rating_and_review_count(): void
     {
@@ -131,6 +155,43 @@ class BookControllerTest extends TestCase
         $target = $data->firstWhere('id', $book->id);
 
         $this->assertEquals(4.7, $target['reviews_avg_rating']);
+    }
+
+    #[TestDox('per_pageが100を超える場合は422を返す（クランプではなくバリデーションエラー）')]
+    public function test_book_index_rejects_per_page_over_100(): void
+    {
+        $response = $this->getJson('/api/v1/books?per_page=101');
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('per_page');
+    }
+
+    #[TestDox('per_pageに100を指定した場合は正常に受理される（境界値）')]
+    public function test_book_index_accepts_per_page_of_exactly_100(): void
+    {
+        $response = $this->getJson('/api/v1/books?per_page=100');
+
+        $response->assertOk();
+    }
+
+    #[TestDox('per_pageが1未満の場合は422を返す')]
+    public function test_book_index_rejects_per_page_below_1(): void
+    {
+        $response = $this->getJson('/api/v1/books?per_page=0');
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('per_page');
+    }
+
+    #[TestDox('per_page未指定の場合はデフォルト20件で返る')]
+    public function test_book_index_defaults_to_20_per_page(): void
+    {
+        Book::factory()->count(25)->create();
+
+        $response = $this->getJson('/api/v1/books');
+
+        $response->assertOk();
+        $this->assertCount(20, $response->json('data'));
     }
 
     // ---------------------------------------------------------------

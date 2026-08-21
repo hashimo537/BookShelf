@@ -61,7 +61,8 @@ http://localhost
 
 ```bash
 # 1. リポジトリをクローン
-git clone git@github.com:your-account/BookShelf.git
+git clone https://github.com/hashimo537/BookShelf.git bookshelf-app
+
 cd bookshelf-app
 
 # 2. .envファイルを作成
@@ -532,5 +533,58 @@ sail artisan test --coverage
  
 テスト用データベース（`testing`）は、Laravel Sail標準の仕組みにより`sail up -d`時に自動作成されます。手動でのデータベース作成は不要です。
  
-現在、単体テスト・機能テストあわせて196件、カバレッジ98.7%です。
+現在、単体テスト・機能テストあわせて207件、カバレッジ98.7%です。
  
+ ### Postmanでの動作確認例
+
+いずれのリクエストも`Accept: application/json`ヘッダーを付けてください（無いとバリデーション失敗時にJSONではなくリダイレクトが返ることがあります）。
+
+**ログイン（トークン取得）**
+
+```
+POST /api/v1/login
+Headers: Accept: application/json, Content-Type: application/json
+Body (raw / JSON):
+{
+    "email": "yamada@example.com",
+    "password": "password"
+}
+```
+
+レスポンス例（200）：
+
+```json
+{
+    "token": "1|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "token_type": "Bearer"
+}
+```
+
+**書籍登録**（上記で取得した`token`を`Authorization: Bearer {token}`ヘッダーに設定してください）
+
+```
+POST /api/v1/books
+Headers: Accept: application/json, Content-Type: application/json, Authorization: Bearer {token}
+Body (raw / JSON):
+{
+    "title": "APIから登録した書籍",
+    "author_name": "テスト太郎",
+    "isbn": "1234567890123",
+    "published_date": "2020-01-01",
+    "description": "Postmanで作成しました",
+    "genres": [1]
+}
+```
+
+成功時は201と共に登録内容が返ります。`title`未入力等、わざと不正な値を送ると422とバリデーションエラーがJSONで返ります。
+
+**書籍更新・削除**
+
+- 更新：`PUT /api/v1/books/{book}`（Body形式は登録と同じ。`Authorization`ヘッダー必須、登録者本人のみ200）
+- 削除：`DELETE /api/v1/books/{book}`（`Authorization`ヘッダー必須、登録者本人のみ204）
+
+**異常系の確認**
+
+- 存在しないID：`GET /api/v1/books/99999` → 404 + `{"message": "指定された書籍が見つかりませんでした。"}`
+- 上限超過の件数：`GET /api/v1/books?per_page=200` → 422 + `per_page`のバリデーションエラー
+- 未認証で書き込み：`Authorization`ヘッダー無しで`POST /api/v1/books` → 401 + `{"message": "認証が必要です。"}`

@@ -21,7 +21,9 @@ class BookController extends Controller
     public function index(BookRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        $perPage = min($validated['per_page'] ?? 20, 100);
+        // per_pageの上限チェックはBookRequestのバリデーション（max:100）に一任し、
+        // ここでは「未指定時のデフォルト値20」のみを担当する。
+        $perPage = $validated['per_page'] ?? 20;
 
         $books = Book::query()
             ->with('genres')
@@ -43,6 +45,10 @@ class BookController extends Controller
             ->when(
                 ($validated['sort'] ?? 'newest') === 'title',
                 fn ($query) => $query->orderBy('title')->orderBy('id')
+            )
+            ->when(
+                ($validated['sort'] ?? 'newest') === 'rating',
+                fn ($query) => $query->orderByDesc('reviews_avg_rating')->orderByDesc('id')
             )
             ->when(
                 ($validated['sort'] ?? 'newest') === 'newest',

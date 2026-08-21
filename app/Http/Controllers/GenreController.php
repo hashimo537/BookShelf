@@ -44,7 +44,7 @@ class GenreController extends Controller
 
         return redirect()
             ->route('genres.index')
-            ->with('success', 'ジャンルを登録しました。');
+            ->with('success', 'ジャンルを作成しました。');
     }
 
     /**
@@ -99,7 +99,7 @@ class GenreController extends Controller
         } catch (QueryException) {
             return redirect()
                 ->route('genres.index')
-                ->with('error', 'このジャンルは書籍に紐づいているため削除できません。');
+                ->with('error', 'このジャンルには書籍が紐づいている為削除できません。');
         }
 
         return redirect()
