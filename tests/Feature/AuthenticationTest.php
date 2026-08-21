@@ -181,6 +181,18 @@ class AuthenticationTest extends TestCase
     // ---------------------------------------------------------------
     // ログイン
     // ---------------------------------------------------------------
+    #[TestDox('会員登録が成功すると「ユーザーが作成されました」のフラッシュメッセージが表示される')]
+    public function test_registration_shows_success_flash_message(): void
+    {
+        $response = $this->post(route('register'), [
+            'name' => '山田花子',
+            'email' => 'hanako-flash@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $response->assertSessionHas('success', 'ユーザーが作成されました。');
+    }
 
     #[TestDox('ゲストはログイン画面を表示できる')]
     public function test_guest_can_view_login_page(): void

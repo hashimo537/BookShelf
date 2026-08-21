@@ -80,6 +80,44 @@ class ReviewControllerTest extends TestCase
     // ---------------------------------------------------------------
     // バリデーション（StoreReviewRequest）
     // ---------------------------------------------------------------
+    #[TestDox('レビュー投稿成功時「レビューが投稿されました」のフラッシュメッセージが表示される')]
+    public function test_store_shows_correct_flash_message(): void
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('reviews.store', $book), [
+            'rating' => 5,
+            'comment' => 'テストコメント',
+        ]);
+
+        $response->assertSessionHas('success', 'レビューが投稿されました。');
+    }
+
+    #[TestDox('レビュー更新成功時「レビューが編集されました」のフラッシュメッセージが表示される')]
+    public function test_update_shows_correct_flash_message(): void
+    {
+        $user = User::factory()->create();
+        $review = Review::factory()->create(['user_id' => $user->id]);
+
+        $response = $this->actingAs($user)->put(route('reviews.update', $review), [
+            'rating' => 3,
+            'comment' => '更新後のコメント',
+        ]);
+
+        $response->assertSessionHas('success', 'レビューが編集されました。');
+    }
+
+    #[TestDox('レビュー削除成功時「レビューが削除されました」のフラッシュメッセージが表示される')]
+    public function test_destroy_shows_correct_flash_message(): void
+    {
+        $user = User::factory()->create();
+        $review = Review::factory()->create(['user_id' => $user->id]);
+
+        $response = $this->actingAs($user)->delete(route('reviews.destroy', $review));
+
+        $response->assertSessionHas('success', 'レビューが削除されました。');
+    }
 
     #[TestDox('評価が未入力の場合は投稿に失敗する')]
     public function test_store_fails_when_rating_is_missing(): void
