@@ -25,16 +25,16 @@ http://localhost
 ```
 
 ## 目次
-
+ 
 - [使用技術](#使用技術)
-- [環境構築](#環境構築)
+- [クローン後のセットアップ手順（採点用）](#クローン後のセットアップ手順採点用)
+- [（参考）プロジェクトの初期構築手順](#参考プロジェクトの初期構築手順)
 - [シーディングされるアカウント](#シーディングされるアカウント)
 - [ER図](#er図)
 - [画面一覧](#画面一覧)
 - [API一覧](#api一覧)
 - [バッチ処理](#バッチ処理)
 - [テスト](#テスト)
-
 ---
 
 ## 使用技術
@@ -55,9 +55,74 @@ http://localhost
 
 ---
 
-## 環境構築
+## クローン後のセットアップ手順（採点用）
 
-> ⚠️ 以下の手順は採点環境と完全に一致させる必要があります。異なる手順（`laravel.build`の使用、最新版Laravelの使用等）で構築した場合、動作しない可能性があります。
+以下は、本リポジトリを`git clone`した後に実際に必要な手順です。プロジェクトの新規作成（`composer create-project`等）は**既に完了済み**のため不要です。
+
+```bash
+# 1. リポジトリをクローン
+git clone git@github.com:your-account/BookShelf.git
+cd bookshelf-app
+
+# 2. .envファイルを作成
+cp .env.example .env
+```
+
+`.env`を開き、以下の値になっていることを確認してください（既に設定済みのはずです）。
+
+```
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
+
+GOOGLE_BOOKS_API_KEY=（発行したキーに差し替えてください）
+GOOGLE_BOOKS_API_BASE_URL=https://www.googleapis.com/books/v1
+```
+
+**Google Books APIキーが無いとISBN検索機能のみ動作しません（他機能には影響しません）。** キーの取得方法は「使用技術・外部API連携」セクションを参照してください。
+
+```bash
+# 3. Composerの依存パッケージをインストール
+#   （ローカルにPHP/Composerが無い場合はDockerイメージ経由でインストール）
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php82-composer:latest \
+    composer install --ignore-platform-reqs
+
+# 4. Sailを起動
+./vendor/bin/sail up -d
+
+# 5. アプリケーションキーを生成
+sail artisan key:generate
+
+# 6. マイグレーション＋シーディングを実行
+sail artisan migrate --seed
+
+# 7. フロントエンド資材をインストール・ビルド
+sail npm install
+sail npm run build
+```
+
+`http://localhost`にアクセスして動作確認してください。`sail composer require`や`sail artisan vendor:publish`、`sail artisan notifications:table`のような**パッケージ・設定ファイルを新規生成するコマンドは、既にリポジトリにコミット済みのため再実行不要**です（`composer install`で依存パッケージのみ揃います）。
+
+### 読書計画の通知バッチを確認する場合
+
+シーディング直後は通知が0件です（[バッチ処理セクション](#バッチ処理)を参照）。
+
+```bash
+sail artisan reading-plans:process
+```
+
+---
+
+## （参考）プロジェクトの初期構築手順
+
+> ⚠️ 上記の「クローン後のセットアップ」とは別に、本プロジェクトを**最初から作った際の手順**を記録として残しています。環境の再現性を確認したい場合や、同じ構成で別プロジェクトを立ち上げたい場合の参考にしてください。
 
 ### 1. Laravelプロジェクトの作成（Laravel 10.x）
 
@@ -258,7 +323,7 @@ sail artisan migrate:fresh --seed
 
 ## ER図
 
-mermaid
+```mermaid
 ---
 title: "BookShelf"
 ---
@@ -359,7 +424,7 @@ erDiagram
         timestamp created_at "作成日時"
         timestamp updated_at "更新日時"
     }
-
+```
 
 ### 補足
 
@@ -414,31 +479,34 @@ erDiagram
 ---
 
 ## バッチ処理
-
-読書計画のリマインダー通知（期日3日前・当日・3日後）と、期日から4日以上経過した進行中の計画を自動的に「期限切れ」にする処理を、日次バッチとして実装しています。
-
-
-
+ 
+読書計画のリマインダー通知（期日3日前・当日・3日後）と、期限当日20時のバッチ実行時点でまだ進行中の計画を自動的に「期限切れ」にする処理を、日次バッチとして実装しています。
+ 
+```bash
 # 手動実行
 sail artisan reading-plans:process
-
-`app/Console/Kernel.php`の`schedule()`で毎日実行されるよう登録済みです。
-
-bash
+```
+ 
+`app/Console/Kernel.php`の`schedule()`で毎日20時に自動実行されるよう登録済みです。
+ 
+```bash
 # スケジュール登録の確認
 sail artisan schedule:list
-
-
+```
+ 
 ### ⚠️ シーディング直後は通知が0件です
-
+ 
 `ReadingPlanSeeder`が投入するのは「読書計画（`reading_plans`）」のデータのみで、「通知（`notifications`）」はこのバッチコマンドを実行して初めて生成されます。そのため、`migrate:fresh --seed`を実行した直後は、`/notifications`（通知一覧画面）が空の状態になります。
-
+ 
 動作確認する際は、シーディング後に**手動で一度バッチを実行してください**。
-
+ 
+```bash
 sail artisan migrate:fresh --seed
 sail artisan reading-plans:process
-
+```
+ 
 本番運用では、上記の`Kernel.php`のスケジュール設定により毎日自動実行されるため、この手動実行は開発・動作確認時のみ必要な手順です。
+ 
 
 # 手動実行
 sail artisan reading-plans:process
@@ -453,12 +521,16 @@ sail artisan schedule:list
 ---
 
 ## テスト
-
+ 
+```bash
 # 全テスト実行（日本語のテスト内容を表示）
 sail artisan test --testdox
-
+ 
 # カバレッジ計測
 sail artisan test --coverage
 ```
-
-現在、単体テスト・機能テストあわせて189件、カバレッジ98.6%です。
+ 
+テスト用データベース（`testing`）は、Laravel Sail標準の仕組みにより`sail up -d`時に自動作成されます。手動でのデータベース作成は不要です。
+ 
+現在、単体テスト・機能テストあわせて196件、カバレッジ98.7%です。
+ 
