@@ -143,6 +143,27 @@ class BookControllerTest extends TestCase
         $this->assertDatabaseCount('books', 0);
     }
 
+    #[TestDox('著者名が未入力の場合は登録に失敗する')]
+    public function test_store_fails_when_author_is_missing(): void
+    {
+        $user = User::factory()->create();
+        $genre = Genre::factory()->create();
+
+        $payload = [
+            'title' => 'テスト書籍',
+            'author' => '',
+            'isbn' => '1234567890123',
+            'published_date' => '2020-01-01',
+            'genres' => [$genre->id],
+        ];
+
+        $response = $this->actingAs($user)->post(route('books.store'), $payload);
+
+        $response->assertSessionHasErrors('author');
+        $this->assertDatabaseCount('books', 0);
+    }
+
+
     #[TestDox('ISBNが13桁でない場合は登録に失敗する')]
     public function test_store_fails_when_isbn_is_not_13_digits(): void
     {
@@ -466,29 +487,6 @@ class BookControllerTest extends TestCase
         $response->assertJsonStructure(['error']);
     }
 
-    #[TestDox('著者名が未入力でも書籍を登録できる（★応用：nullable化）')]
-    public function test_authenticated_user_can_store_book_without_author(): void
-    {
-        $user = User::factory()->create();
-        $genre = Genre::factory()->create();
-
-        $payload = [
-            'title' => '著者不明の本',
-            'author' => '',
-            'isbn' => '1234567890124',
-            'published_date' => '2020-01-01',
-            'genres' => [$genre->id],
-        ];
-
-        $response = $this->actingAs($user)->post(route('books.store'), $payload);
-
-        $response->assertSessionHasNoErrors();
-        $this->assertDatabaseHas('books', [
-            'title' => '著者不明の本',
-            'author' => null,
-        ]);
-    }
-
     #[TestDox('出版日が未入力でも書籍を登録できる（★応用：nullable化）')]
     public function test_authenticated_user_can_store_book_without_published_date(): void
     {
@@ -512,25 +510,4 @@ class BookControllerTest extends TestCase
         ]);
     }
 
-    #[TestDox('著者名・出版日ともに未入力でも書籍を登録できる（★応用：nullable化）')]
-    public function test_authenticated_user_can_store_book_without_author_and_published_date(): void
-    {
-        $user = User::factory()->create();
-        $genre = Genre::factory()->create();
-
-        $payload = [
-            'title' => 'タイトルのみの本',
-            'isbn' => '1234567890126',
-            'genres' => [$genre->id],
-        ];
-
-        $response = $this->actingAs($user)->post(route('books.store'), $payload);
-
-        $response->assertSessionHasNoErrors();
-        $this->assertDatabaseHas('books', [
-            'title' => 'タイトルのみの本',
-            'author' => null,
-            'published_date' => null,
-        ]);
-    }
 }

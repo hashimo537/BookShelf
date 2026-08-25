@@ -18,10 +18,10 @@ class StoreBookRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            // ★応用：ISBN検索での自動補完を想定し、著者名は任意入力に変更
-            'author' => ['nullable', 'string', 'max:255'],
+            // 採点フィードバック反映：著者名は必須のまま（nullable化は行き過ぎだった）
+            'author' => ['required', 'string', 'max:255'],
             'isbn' => ['required', 'digits:13', 'unique:books,isbn'],
-            // ★応用：出版日が不明なケースを想定し、任意入力に変更
+            // 出版日は引き続き任意（ISBN検索で不明なケースを想定）
             'published_date' => ['nullable', 'date', 'before_or_equal:today'],
             'image_url' => ['nullable', 'url', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
@@ -34,6 +34,7 @@ class StoreBookRequest extends FormRequest
     {
         return [
             'title.required' => 'タイトルは必須です。',
+            'author.required' => '著者名は必須です。', // ← 復活
             'isbn.required' => 'ISBNは必須です。',
             'genres.required' => 'ジャンルを1つ以上選択してください。',
             'genres.min' => 'ジャンルを1つ以上選択してください。',

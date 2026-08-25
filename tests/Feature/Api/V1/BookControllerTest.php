@@ -228,7 +228,7 @@ class BookControllerTest extends TestCase
         $response = $this->getJson('/api/v1/books/99999');
 
         $response->assertStatus(404);
-        $response->assertJsonStructure(['message']);
+        $response->assertJsonStructure(['error']);
     }
 
     // ---------------------------------------------------------------
@@ -355,6 +355,7 @@ class BookControllerTest extends TestCase
         $response = $this->putJson("/api/v1/books/{$book->id}", $payload);
 
         $response->assertStatus(403);
+        $response->assertJsonStructure(['error']);
         $this->assertDatabaseMissing('books', ['title' => '不正な更新']);
     }
 
@@ -395,6 +396,7 @@ class BookControllerTest extends TestCase
         $response = $this->putJson('/api/v1/books/99999', $payload);
 
         $response->assertStatus(404);
+        $response->assertJsonStructure(['error']);
     }
 
     #[TestDox('書籍更新APIは自分自身のISBNのまま更新しても一意性エラーにならない')]
@@ -446,6 +448,7 @@ class BookControllerTest extends TestCase
         $response = $this->deleteJson("/api/v1/books/{$book->id}");
 
         $response->assertStatus(403);
+        $response->assertJsonStructure(['error']);
         $this->assertDatabaseHas('books', ['id' => $book->id]);
     }
 
@@ -469,6 +472,7 @@ class BookControllerTest extends TestCase
         $response = $this->deleteJson('/api/v1/books/99999');
 
         $response->assertStatus(404);
+        $response->assertJsonStructure(['error']);
     }
 
     #[TestDox('書籍削除APIは関連するレビュー・お気に入り・ジャンル紐付けも連動して削除し、ジャンル自体は残す')]

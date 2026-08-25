@@ -7,6 +7,8 @@ use App\Http\Requests\StoreReadingPlanRequest;
 use App\Http\Requests\UpdateReadingPlanRequest;
 use App\Models\Book;
 use App\Models\ReadingPlan;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -116,12 +118,17 @@ class ReadingPlanController extends Controller
     /**
      * 読書計画削除処理（DELETE /reading-plans/{reading_plan}）
      * 認証＋認可必須（所有者のみ）。
+     * 採点フィードバック反映：関連するリマインダー通知も、Transaction内で計画と同時に削除する
+     * （notificationsはJSON列(data->reading_plan_id)でしか紐付いておらず、cascadeOnDeleteが効かないため）。
      */
     public function destroy(ReadingPlan $readingPlan): RedirectResponse
     {
         $this->authorize('delete', $readingPlan);
 
-        $readingPlan->delete();
+        DB::transaction(function () use ($readingPlan) {
+            DatabaseNotification::where('data->reading_plan_id', $readingPlan->id)->delete();
+            $readingPlan->delete();
+        });
 
         return redirect()
             ->route('reading-plans.index')
