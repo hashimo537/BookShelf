@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * 採点フィードバック反映：authorは必須のままが正しい仕様だったため、NOT NULLに戻す。
      * published_dateは引き続きnullableのまま変更しない。

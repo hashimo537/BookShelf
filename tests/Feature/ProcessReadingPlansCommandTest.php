@@ -112,7 +112,6 @@ class ProcessReadingPlansCommandTest extends TestCase
         $this->assertEquals(ReadingPlanStatus::Expired, $plan->fresh()->status);
     }
 
-
     #[TestDox('期日を大幅に過ぎている進行中の計画も、まとめて期限切れになる（バッチのキャッチアップ）')]
     public function test_expires_plans_that_are_significantly_overdue(): void
     {
@@ -125,8 +124,6 @@ class ProcessReadingPlansCommandTest extends TestCase
 
         $this->assertEquals(ReadingPlanStatus::Expired, $plan->fresh()->status);
     }
-
-    
 
     #[TestDox('期日がまだ先の進行中の計画は期限切れにならない')]
     public function test_does_not_expire_plans_with_future_target_date(): void

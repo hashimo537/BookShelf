@@ -6,6 +6,7 @@ use App\Enums\ReadingPlanStatus;
 use App\Models\Book;
 use App\Models\ReadingPlan;
 use App\Models\User;
+use App\Notifications\ReadingPlanReminder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
@@ -279,7 +280,7 @@ class ReadingPlanControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $plan = ReadingPlan::factory()->create(['user_id' => $user->id]);
-        $user->notify(new \App\Notifications\ReadingPlanReminder($plan, 'on_due_date'));
+        $user->notify(new ReadingPlanReminder($plan, 'on_due_date'));
 
         $this->assertDatabaseHas('notifications', []); // 前提：通知が存在する
 

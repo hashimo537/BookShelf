@@ -7,6 +7,7 @@ use App\Models\Genre;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
@@ -89,7 +90,7 @@ class BookControllerTest extends TestCase
 
         $this->assertDatabaseHas('books', [
             'title' => 'テスト駆動開発',
-            'author' => 'テスト太郎', 
+            'author' => 'テスト太郎',
             'isbn' => '1234567890123',
             'user_id' => $user->id,
         ]);
@@ -163,7 +164,6 @@ class BookControllerTest extends TestCase
         $this->assertDatabaseCount('books', 0);
     }
 
-
     #[TestDox('ISBNが13桁でない場合は登録に失敗する')]
     public function test_store_fails_when_isbn_is_not_13_digits(): void
     {
@@ -201,6 +201,22 @@ class BookControllerTest extends TestCase
         $response = $this->actingAs($user)->post(route('books.store'), $payload);
 
         $response->assertSessionHasErrors('isbn');
+    }
+
+    #[TestDox('ISBN検索でGoogle Books APIへの接続に失敗した場合もJSON形式でエラーが返る（画面エラーにならない）')]
+    public function test_isbn_search_returns_json_error_when_connection_fails(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        Http::fake(function () {
+            throw new ConnectionException('Connection timed out');
+        });
+
+        $response = $this->getJson('/books/isbn/9784101010014');
+
+        $response->assertStatus(404);
+        $response->assertJsonStructure(['error']);
     }
 
     #[TestDox('ジャンルが1つも選択されていない場合は登録に失敗する')]
@@ -509,5 +525,4 @@ class BookControllerTest extends TestCase
             'published_date' => null,
         ]);
     }
-
 }

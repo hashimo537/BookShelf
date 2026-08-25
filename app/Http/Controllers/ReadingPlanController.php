@@ -7,10 +7,10 @@ use App\Http\Requests\StoreReadingPlanRequest;
 use App\Http\Requests\UpdateReadingPlanRequest;
 use App\Models\Book;
 use App\Models\ReadingPlan;
-use Illuminate\Notifications\DatabaseNotification;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ReadingPlanController extends Controller
