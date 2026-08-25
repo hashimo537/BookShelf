@@ -32,7 +32,7 @@ class BookController extends Controller
             ->when($validated['keyword'] ?? null, function ($query, $keyword) {
                 $query->where(function ($q) use ($keyword) {
                     $q->where('title', 'like', "%{$keyword}%")
-                        ->orWhere('author_name', 'like', "%{$keyword}%");
+                        ->orWhere('author', 'like', "%{$keyword}%");
                 });
             })
             ->when($validated['genre_id'] ?? null, function ($query, $genreId) {
@@ -88,7 +88,7 @@ class BookController extends Controller
             $book = Book::create([
                 'user_id' => $request->user()->id,
                 'title' => $validated['title'],
-                'author_name' => $validated['author_name'],
+                'author' => $validated['author'],
                 'isbn' => $validated['isbn'],
                 'published_date' => $validated['published_date'],
                 'description' => $validated['description'] ?? null,
@@ -118,7 +118,7 @@ class BookController extends Controller
         DB::transaction(function () use ($validated, $book) {
             $book->update([
                 'title' => $validated['title'],
-                'author_name' => $validated['author_name'],
+                'author' => $validated['author'],
                 'isbn' => $validated['isbn'],
                 'published_date' => $validated['published_date'],
                 'description' => $validated['description'] ?? null,

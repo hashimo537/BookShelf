@@ -16,7 +16,7 @@ class BookFactory extends Factory
         return [
             'user_id' => User::factory(),
             'title' => fake()->sentence(3),
-            'author_name' => fake()->name(),
+            'author' => fake()->name(),
             'isbn' => fake()->unique()->numerify('#############'), // 13桁
             'published_date' => fake()->date(),
             'description' => fake()->paragraph(),

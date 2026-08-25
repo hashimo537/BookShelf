@@ -244,7 +244,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => 'APIから登録した本',
-            'author_name' => 'API太郎',
+            'author' => 'API太郎',
             'isbn' => '1234567890123',
             'published_date' => '2020-01-01',
             'description' => 'API経由での登録テスト',
@@ -258,7 +258,7 @@ class BookControllerTest extends TestCase
 
         $this->assertDatabaseHas('books', [
             'title' => 'APIから登録した本',
-            'author_name' => 'API太郎',
+            'author' => 'API太郎',
             'isbn' => '1234567890123',
             'user_id' => $user->id, // トークンの持ち主が自動的に登録者になる
         ]);
@@ -271,7 +271,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => 'テスト書籍',
-            'author_name' => 'テスト太郎',
+            'author' => 'テスト太郎',
             'isbn' => '1234567890123',
             'published_date' => '2020-01-01',
             'genres' => [$genre->id],
@@ -292,7 +292,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => '',
-            'author_name' => 'API太郎',
+            'author' => 'API太郎',
             'isbn' => '1234567890123',
             'published_date' => '2020-01-01',
             'genres' => [$genre->id],
@@ -319,7 +319,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => '更新後タイトル',
-            'author_name' => $book->author,
+            'author' => $book->author,
             'isbn' => $book->isbn,
             'published_date' => $book->published_date->format('Y-m-d'),
             'genres' => [$genre->id],
@@ -346,7 +346,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => '不正な更新',
-            'author_name' => $book->author,
+            'author' => $book->author,
             'isbn' => $book->isbn,
             'published_date' => $book->published_date->format('Y-m-d'),
             'genres' => [$genre->id],
@@ -366,7 +366,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => '不正な更新',
-            'author_name' => $book->author,
+            'author' => $book->author,
             'isbn' => $book->isbn,
             'published_date' => $book->published_date->format('Y-m-d'),
             'genres' => [$genre->id],
@@ -386,7 +386,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => 'テスト',
-            'author_name' => 'テスト太郎',
+            'author' => 'テスト太郎',
             'isbn' => '1234567890123',
             'published_date' => '2020-01-01',
             'genres' => [$genre->id],
@@ -407,7 +407,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => '更新後タイトル',
-            'author_name' => $book->author,
+            'author' => $book->author,
             'isbn' => '1234567890123',
             'published_date' => $book->published_date->format('Y-m-d'),
             'genres' => [$genre->id],

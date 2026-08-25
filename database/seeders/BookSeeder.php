@@ -127,7 +127,7 @@ class BookSeeder extends Seeder
                 [
                     'user_id' => $users->random()->id, // ★応用：ランダムユーザー割当
                     'title' => $data['title'],
-                    'author_name' => $data['author'],
+                    'author' => $data['author'],
                     'published_date' => $data['published_at'],
                     'description' => $data['description'],
                     'image_url' => "https://placehold.co/200x300/e2e8f0/475569?text={$data['no']}",

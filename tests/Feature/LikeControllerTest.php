@@ -20,7 +20,7 @@ class LikeControllerTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('reviews.like', $review));
 
-        $this->assertDatabaseHas('likes', [
+        $this->assertDatabaseHas('review_likes', [
             'user_id' => $user->id,
             'review_id' => $review->id,
         ]);
@@ -39,7 +39,7 @@ class LikeControllerTest extends TestCase
 
         $this->actingAs($user)->post(route('reviews.like', $review));
 
-        $this->assertDatabaseCount('likes', 0);
+        $this->assertDatabaseCount('review_likes', 0);
     }
 
     #[TestDox('いいね済みのレビューはいいねを取り消せる')]
@@ -51,7 +51,7 @@ class LikeControllerTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('reviews.like', $review));
 
-        $this->assertDatabaseMissing('likes', [
+        $this->assertDatabaseMissing('review_likes', [
             'user_id' => $user->id,
             'review_id' => $review->id,
         ]);
@@ -66,6 +66,6 @@ class LikeControllerTest extends TestCase
         $response = $this->post(route('reviews.like', $review));
 
         $response->assertRedirect(route('login'));
-        $this->assertDatabaseCount('likes', 0);
+        $this->assertDatabaseCount('review_likes', 0);
     }
 }

@@ -89,7 +89,7 @@ class BookControllerTest extends TestCase
 
         $this->assertDatabaseHas('books', [
             'title' => 'テスト駆動開発',
-            'author_name' => 'テスト太郎', // フォームは'author'だがDBカラムは'author_name'
+            'author' => 'テスト太郎', 
             'isbn' => '1234567890123',
             'user_id' => $user->id,
         ]);
@@ -485,7 +485,7 @@ class BookControllerTest extends TestCase
         $response->assertSessionHasNoErrors();
         $this->assertDatabaseHas('books', [
             'title' => '著者不明の本',
-            'author_name' => null,
+            'author' => null,
         ]);
     }
 
@@ -529,7 +529,7 @@ class BookControllerTest extends TestCase
         $response->assertSessionHasNoErrors();
         $this->assertDatabaseHas('books', [
             'title' => 'タイトルのみの本',
-            'author_name' => null,
+            'author' => null,
             'published_date' => null,
         ]);
     }

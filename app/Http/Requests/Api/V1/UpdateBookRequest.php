@@ -21,7 +21,7 @@ class UpdateBookRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'author_name' => ['required', 'string', 'max:255'],
+            'author' => ['required', 'string', 'max:255'],
             'isbn' => [
                 'required',
                 'digits:13',
@@ -39,7 +39,7 @@ class UpdateBookRequest extends FormRequest
     {
         return [
             'title.required' => 'タイトルは必須です。',
-            'author_name.required' => '著者名は必須です。',
+            'author.required' => '著者名は必須です。',
             'isbn.required' => 'ISBNは必須です。',
             'published_date.required' => '出版日は必須です。',
             'genres.required' => 'ジャンルを1つ以上選択してください。',
@@ -55,7 +55,7 @@ class UpdateBookRequest extends FormRequest
             'image_url.max' => '画像URLは255文字以内で入力してください。',
 
             'title.max' => 'タイトルは255文字以内で入力してください。',
-            'author_name.max' => '著者名は255文字以内で入力してください。',
+            'author.max' => '著者名は255文字以内で入力してください。',
             'description.max' => '説明は1000文字以内で入力してください。',
         ];
     }
@@ -64,7 +64,7 @@ class UpdateBookRequest extends FormRequest
     {
         return [
             'title' => 'タイトル',
-            'author_name' => '著者名',
+            'author' => '著者名',
             'isbn' => 'ISBN',
             'published_date' => '出版日',
             'description' => '説明',
