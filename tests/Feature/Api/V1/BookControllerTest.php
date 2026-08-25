@@ -496,4 +496,46 @@ class BookControllerTest extends TestCase
         $this->assertDatabaseMissing('favorites', ['book_id' => $book->id]);
         $this->assertDatabaseHas('genres', ['id' => $genre->id]);
     }
+
+    #[TestDox('書籍一覧APIはsort=newest（デフォルト）で新しい順に並ぶ')]
+    public function test_book_index_sorts_by_newest_by_default(): void
+    {
+        $older = Book::factory()->create();
+        $newer = Book::factory()->create();
+
+        $response = $this->getJson('/api/v1/books?sort=newest');
+
+        $response->assertOk();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+
+        $this->assertTrue(array_search($newer->id, $ids) < array_search($older->id, $ids));
+    }
+
+    #[TestDox('書籍一覧APIはsortパラメータ未指定でも新しい順（デフォルト）で並ぶ')]
+    public function test_book_index_defaults_to_newest_when_sort_is_omitted(): void
+    {
+        $older = Book::factory()->create();
+        $newer = Book::factory()->create();
+
+        $response = $this->getJson('/api/v1/books'); // sortパラメータなし
+
+        $response->assertOk();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+
+        $this->assertTrue(array_search($newer->id, $ids) < array_search($older->id, $ids));
+    }
+
+    #[TestDox('書籍一覧APIはsort=oldestで古い順に並ぶ')]
+    public function test_book_index_sorts_by_oldest(): void
+    {
+        $older = Book::factory()->create();
+        $newer = Book::factory()->create();
+
+        $response = $this->getJson('/api/v1/books?sort=oldest');
+
+        $response->assertOk();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+
+        $this->assertTrue(array_search($older->id, $ids) < array_search($newer->id, $ids));
+    }
 }

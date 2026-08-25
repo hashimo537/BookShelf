@@ -525,4 +525,52 @@ class BookControllerTest extends TestCase
             'published_date' => null,
         ]);
     }
+
+    #[TestDox('sort=newest（デフォルト）で新しい順に並ぶ')]
+    public function test_index_sorts_by_newest_by_default(): void
+    {
+        $older = Book::factory()->create();
+        $newer = Book::factory()->create();
+
+        $response = $this->get(route('books.index', ['sort' => 'newest']));
+
+        $response->assertOk();
+        $response->assertViewHas('books', function ($books) use ($newer, $older) {
+            $ids = collect($books->items())->pluck('id')->toArray();
+
+            return array_search($newer->id, $ids) < array_search($older->id, $ids);
+        });
+    }
+
+    #[TestDox('sortパラメータを指定しない場合も新しい順（デフォルト）で並ぶ')]
+    public function test_index_defaults_to_newest_when_sort_is_omitted(): void
+    {
+        $older = Book::factory()->create();
+        $newer = Book::factory()->create();
+
+        $response = $this->get(route('books.index')); // sortパラメータなし
+
+        $response->assertOk();
+        $response->assertViewHas('books', function ($books) use ($newer, $older) {
+            $ids = collect($books->items())->pluck('id')->toArray();
+
+            return array_search($newer->id, $ids) < array_search($older->id, $ids);
+        });
+    }
+
+    #[TestDox('sort=oldestで古い順に並ぶ')]
+    public function test_index_sorts_by_oldest(): void
+    {
+        $older = Book::factory()->create();
+        $newer = Book::factory()->create();
+
+        $response = $this->get(route('books.index', ['sort' => 'oldest']));
+
+        $response->assertOk();
+        $response->assertViewHas('books', function ($books) use ($newer, $older) {
+            $ids = collect($books->items())->pluck('id')->toArray();
+
+            return array_search($older->id, $ids) < array_search($newer->id, $ids);
+        });
+    }
 }
