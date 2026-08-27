@@ -55,10 +55,10 @@ class Handler extends ExceptionHandler
             }
 
             // AP02/AP04: 存在しないIDが指定された場合（ルートモデルバインディング失敗）
-            // 採点フィードバック反映：レスポンスキーを message → error に統一
+            // 仕様確認：文言を完全一致させる（「指定された」を削除）
             if ($e instanceof ModelNotFoundException) {
                 return response()->json([
-                    'error' => '指定された書籍が見つかりませんでした。',
+                    'error' => '書籍が見つかりませんでした。',
                 ], 404);
             }
 

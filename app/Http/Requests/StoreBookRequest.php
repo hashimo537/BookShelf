@@ -18,11 +18,11 @@ class StoreBookRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            // 採点フィードバック反映：著者名は必須のまま（nullable化は行き過ぎだった）
             'author' => ['required', 'string', 'max:255'],
-            'isbn' => ['required', 'digits:13', 'unique:books,isbn'],
-            // 出版日は引き続き任意（ISBN検索で不明なケースを想定）
-            'published_date' => ['nullable', 'date', 'before_or_equal:today'],
+            // 仕様確認：ISBNは digits（数字限定）ではなく string + size:13（13文字であること）が正しい
+            'isbn' => ['required', 'string', 'size:13', 'unique:books,isbn'],
+            // 仕様確認：nullable化は誤りだった。出版日は必須に戻す
+            'published_date' => ['required', 'date', 'before_or_equal:today'],
             'image_url' => ['nullable', 'url', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'genres' => ['required', 'array', 'min:1'],
@@ -34,12 +34,13 @@ class StoreBookRequest extends FormRequest
     {
         return [
             'title.required' => 'タイトルは必須です。',
-            'author.required' => '著者名は必須です。', // ← 復活
+            'author.required' => '著者名は必須です。',
             'isbn.required' => 'ISBNは必須です。',
+            'published_date.required' => '出版日は必須です。', // ← 復活
             'genres.required' => 'ジャンルを1つ以上選択してください。',
             'genres.min' => 'ジャンルを1つ以上選択してください。',
 
-            'isbn.digits' => 'ISBNは13桁の数字で入力してください。',
+            'isbn.size' => 'ISBNは13文字で入力してください。', // ← digits→sizeに合わせて変更
             'isbn.unique' => 'そのISBNは既に使用されています。',
 
             'published_date.date' => '出版日は有効な日付形式で入力してください。',

@@ -25,16 +25,15 @@ class UpdateReadingPlanRequest extends FormRequest
     }
 
     /**
-     * 期限切れの計画を編集して「進行中」に復帰させる際、
-     * 同じ書籍に対する別の「進行中」計画が既に存在する場合はエラーにする。
-     * 採点フィードバック反映：編集時にも重複制御バリデーションを機能させる。
+     * 仕様確認：重複制御（同一user×bookでin_progress状態の他計画が存在しないこと）は、
+     * 「期限切れからの復帰時」に限定せず、編集時は常にチェックする（自身は除外）。
      */
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
             $readingPlan = $this->route('reading_plan');
 
-            if ($readingPlan === null || $readingPlan->status !== ReadingPlanStatus::Expired) {
+            if ($readingPlan === null) {
                 return;
             }
 

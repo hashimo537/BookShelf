@@ -503,29 +503,6 @@ class BookControllerTest extends TestCase
         $response->assertJsonStructure(['error']);
     }
 
-    #[TestDox('出版日が未入力でも書籍を登録できる（★応用：nullable化）')]
-    public function test_authenticated_user_can_store_book_without_published_date(): void
-    {
-        $user = User::factory()->create();
-        $genre = Genre::factory()->create();
-
-        $payload = [
-            'title' => '出版日不明の本',
-            'author' => 'テスト太郎',
-            'isbn' => '1234567890125',
-            'published_date' => '',
-            'genres' => [$genre->id],
-        ];
-
-        $response = $this->actingAs($user)->post(route('books.store'), $payload);
-
-        $response->assertSessionHasNoErrors();
-        $this->assertDatabaseHas('books', [
-            'title' => '出版日不明の本',
-            'published_date' => null,
-        ]);
-    }
-
     #[TestDox('sort=newest（デフォルト）で新しい順に並ぶ')]
     public function test_index_sorts_by_newest_by_default(): void
     {

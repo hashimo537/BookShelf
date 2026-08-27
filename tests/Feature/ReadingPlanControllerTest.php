@@ -459,4 +459,33 @@ class ReadingPlanControllerTest extends TestCase
             'status' => 'expired', // 更新されていない
         ]);
     }
+
+    #[TestDox('進行中の計画を編集する際も、同じ書籍の別の進行中計画があれば重複エラーになる')]
+    public function test_update_fails_when_editing_in_progress_plan_conflicts_with_another_in_progress_plan(): void
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+
+        // 既に進行中の計画①
+        ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => ReadingPlanStatus::InProgress,
+        ]);
+
+        // 同じ書籍の、別の進行中計画②（こちらを編集しようとする）
+        $anotherInProgressPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => ReadingPlanStatus::InProgress,
+        ]);
+
+        $response = $this->actingAs($user)->put(route('reading-plans.update', $anotherInProgressPlan), [
+            'target_date' => now()->addDays(20)->format('Y-m-d'),
+        ]);
+
+        $response->assertSessionHasErrors([
+            'target_date' => 'この書籍は既に進行中の読書計画が存在します。',
+        ]);
+    }
 }

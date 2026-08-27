@@ -229,6 +229,7 @@ class BookControllerTest extends TestCase
 
         $response->assertStatus(404);
         $response->assertJsonStructure(['error']);
+        $response->assertJson(['error' => '書籍が見つかりませんでした。']);
     }
 
     // ---------------------------------------------------------------
@@ -397,6 +398,7 @@ class BookControllerTest extends TestCase
 
         $response->assertStatus(404);
         $response->assertJsonStructure(['error']);
+        $response->assertJson(['error' => '書籍が見つかりませんでした。']);
     }
 
     #[TestDox('書籍更新APIは自分自身のISBNのまま更新しても一意性エラーにならない')]
@@ -473,6 +475,7 @@ class BookControllerTest extends TestCase
 
         $response->assertStatus(404);
         $response->assertJsonStructure(['error']);
+        $response->assertJson(['error' => '書籍が見つかりませんでした。']);
     }
 
     #[TestDox('書籍削除APIは関連するレビュー・お気に入り・ジャンル紐付けも連動して削除し、ジャンル自体は残す')]
