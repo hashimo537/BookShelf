@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +14,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $user_id
  * @property string $title
- * @property string $author_name
+ * @property string $author
  * @property string $isbn
  * @property Carbon $published_date
  * @property string|null $description
@@ -55,7 +54,7 @@ class Book extends Model
     protected $fillable = [
         'user_id',
         'title',
-        'author_name',
+        'author',
         'isbn',
         'published_date',
         'description',
@@ -65,16 +64,6 @@ class Book extends Model
     protected $casts = [
         'published_date' => 'date',
     ];
-
-    /**
-     * Blade側で使用する `author` アクセサ（実カラムは author_name）
-     */
-    protected function author(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->author_name,
-        );
-    }
 
     /**
      * 書籍の登録者

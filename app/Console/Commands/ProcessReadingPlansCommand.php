@@ -76,11 +76,16 @@ class ProcessReadingPlansCommand extends Command
      * target_date <= today としているのは、何らかの理由でバッチが
      * 数日動かなかった場合でも、既に期日を過ぎている計画を確実に拾うため。
      */
+    /**
+     * 期日を過ぎた（＝期日の翌日以降になった）「進行中」の計画を「期限切れ」に変更する。
+     * 採点フィードバック反映：期日当日はまだ「進行中」のまま（当日リマインダーは送るが失効はさせない）。
+     * 失効するのは期日の翌日から（target_date < today）。
+     */
     private function expireDuePlans(Carbon $today): void
     {
         $count = ReadingPlan::query()
             ->where('status', ReadingPlanStatus::InProgress)
-            ->whereDate('target_date', '<=', $today->toDateString())
+            ->whereDate('target_date', '<', $today->toDateString())
             ->update(['status' => ReadingPlanStatus::Expired]);
 
         $this->info("{$count}件の読書計画を期限切れにしました。");

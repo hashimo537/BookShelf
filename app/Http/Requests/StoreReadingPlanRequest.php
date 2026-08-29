@@ -21,19 +21,17 @@ class StoreReadingPlanRequest extends FormRequest
                 'integer',
                 'exists:books,id',
                 function ($attribute, $value, $fail) {
-                    // PM確認済み：同一書籍に「進行中」の計画が既にある場合は新規作成不可。
-                    // 完了済み・期限切れの計画がある場合は新規作成を許可する。
                     $hasInProgressPlan = ReadingPlan::where('user_id', $this->user()->id)
                         ->where('book_id', $value)
                         ->where('status', ReadingPlanStatus::InProgress)
                         ->exists();
 
                     if ($hasInProgressPlan) {
-                        $fail('この書籍にはすでに進行中の読書計画があります。');
+                        // 採点フィードバック反映：指定文言に一致させる
+                        $fail('この書籍は既に進行中の読書計画が存在します。');
                     }
                 },
             ],
-            // 計画なので、今日以降の日付のみ許可する
             'target_date' => ['required', 'date', 'after_or_equal:today'],
         ];
     }

@@ -6,6 +6,7 @@ use App\Enums\ReadingPlanStatus;
 use App\Models\Book;
 use App\Models\ReadingPlan;
 use App\Models\User;
+use App\Notifications\ReadingPlanReminder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
@@ -273,6 +274,21 @@ class ReadingPlanControllerTest extends TestCase
         $response->assertRedirect(route('login'));
         $this->assertDatabaseHas('reading_plans', ['id' => $plan->id]);
     }
+
+    #[TestDox('読書計画を削除すると、関連するリマインダー通知も同時に削除される')]
+    public function test_deleting_reading_plan_also_deletes_related_notifications(): void
+    {
+        $user = User::factory()->create();
+        $plan = ReadingPlan::factory()->create(['user_id' => $user->id]);
+        $user->notify(new ReadingPlanReminder($plan, 'on_due_date'));
+
+        $this->assertDatabaseHas('notifications', []); // 前提：通知が存在する
+
+        $this->actingAs($user)->delete(route('reading-plans.destroy', $plan));
+
+        $this->assertDatabaseMissing('reading_plans', ['id' => $plan->id]);
+        $this->assertDatabaseCount('notifications', 0);
+    }
     // ---------------------------------------------------------------
     // PM確認済み：同一書籍の重複制御（進行中のみ禁止）
     // ---------------------------------------------------------------
@@ -388,6 +404,88 @@ class ReadingPlanControllerTest extends TestCase
         $this->assertDatabaseHas('reading_plans', [
             'id' => $plan->id,
             'status' => 'in_progress', // 未来日への変更で進行中に復帰
+        ]);
+    }
+
+    #[TestDox('同一書籍に進行中の計画が既にある場合、指定文言でエラーになる')]
+    public function test_store_fails_with_exact_duplicate_message(): void
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+        ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => ReadingPlanStatus::InProgress,
+        ]);
+
+        $response = $this->actingAs($user)->post(route('reading-plans.store'), [
+            'book_id' => $book->id,
+            'target_date' => now()->addDays(10)->format('Y-m-d'),
+        ]);
+
+        $response->assertSessionHasErrors([
+            'book_id' => 'この書籍は既に進行中の読書計画が存在します。',
+        ]);
+    }
+
+    #[TestDox('期限切れの計画を復帰させようとした際、同じ書籍の別の進行中計画があれば更新できない')]
+    public function test_update_fails_when_reviving_expired_plan_conflicts_with_another_in_progress_plan(): void
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+
+        // 既に進行中の計画がある
+        ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => ReadingPlanStatus::InProgress,
+        ]);
+
+        // 同じ書籍の、期限切れの別計画を復帰させようとする
+        $expiredPlan = ReadingPlan::factory()->expired()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+        ]);
+
+        $response = $this->actingAs($user)->put(route('reading-plans.update', $expiredPlan), [
+            'target_date' => now()->addDays(10)->format('Y-m-d'),
+        ]);
+
+        $response->assertSessionHasErrors([
+            'target_date' => 'この書籍は既に進行中の読書計画が存在します。',
+        ]);
+        $this->assertDatabaseHas('reading_plans', [
+            'id' => $expiredPlan->id,
+            'status' => 'expired', // 更新されていない
+        ]);
+    }
+
+    #[TestDox('進行中の計画を編集する際も、同じ書籍の別の進行中計画があれば重複エラーになる')]
+    public function test_update_fails_when_editing_in_progress_plan_conflicts_with_another_in_progress_plan(): void
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+
+        // 既に進行中の計画①
+        ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => ReadingPlanStatus::InProgress,
+        ]);
+
+        // 同じ書籍の、別の進行中計画②（こちらを編集しようとする）
+        $anotherInProgressPlan = ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => ReadingPlanStatus::InProgress,
+        ]);
+
+        $response = $this->actingAs($user)->put(route('reading-plans.update', $anotherInProgressPlan), [
+            'target_date' => now()->addDays(20)->format('Y-m-d'),
+        ]);
+
+        $response->assertSessionHasErrors([
+            'target_date' => 'この書籍は既に進行中の読書計画が存在します。',
         ]);
     }
 }

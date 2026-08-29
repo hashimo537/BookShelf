@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -9,7 +10,8 @@ class GoogleBooksService
 {
     /**
      * ISBNで書籍を検索し、書籍登録フォームに埋め込める形式で返す。
-     * 見つからない場合・APIエラー時はnullを返す（呼び出し側で「見つかりませんでした」を表示する想定）。
+     * 見つからない場合・APIエラー時・接続自体に失敗した場合はnullを返す
+     * （呼び出し側で「見つかりませんでした」を表示する想定）。
      *
      * @return array{title: string, author: string, description: string|null, image_url: string|null, published_date: string|null}|null
      */
@@ -18,10 +20,21 @@ class GoogleBooksService
         $baseUrl = config('services.google_books.base_url');
         $apiKey = config('services.google_books.key');
 
-        $response = Http::get("{$baseUrl}/volumes", [
-            'q' => "isbn:{$isbn}",
-            'key' => $apiKey,
-        ]);
+        try {
+            $response = Http::get("{$baseUrl}/volumes", [
+                'q' => "isbn:{$isbn}",
+                'key' => $apiKey,
+            ]);
+        } catch (ConnectionException $e) {
+            // 採点フィードバック反映：接続自体に失敗した場合（タイムアウト・DNS解決失敗等）も
+            // 例外を外に漏らさず、APIエラー時と同様にnullを返す。
+            Log::warning('Google Books API connection failed', [
+                'isbn' => $isbn,
+                'exception' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
 
         if ($response->failed()) {
             Log::warning('Google Books API request failed', [

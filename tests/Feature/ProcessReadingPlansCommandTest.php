@@ -30,8 +30,10 @@ class ProcessReadingPlansCommandTest extends TestCase
         $this->assertEquals('three_days_before', $notification->data['timing']);
     }
 
-    #[TestDox('期日当日の進行中計画にリマインダー通知が送られ、同じバッチ実行内で期限切れになる')]
-    public function test_sends_on_due_date_reminder_and_expires_in_same_run(): void
+    // 差し替え対象①：以前は「同じバッチ実行内で期限切れになる」ことを検証していたが、
+    // 期日当日はまだ「進行中」のままが正しい仕様。テスト名・アサーションを修正。
+    #[TestDox('期日当日の進行中計画にリマインダー通知が送られるが、ステータスは進行中のまま維持される')]
+    public function test_sends_on_due_date_reminder_and_keeps_status_in_progress(): void
     {
         $user = User::factory()->create();
         $plan = ReadingPlan::factory()->create([
@@ -45,8 +47,8 @@ class ProcessReadingPlansCommandTest extends TestCase
         $notification = $user->fresh()->notifications()->first();
         $this->assertEquals('on_due_date', $notification->data['timing']);
 
-        // PM確認済み：当日リマインダーと自動失効は同じバッチ実行の中で起きる
-        $this->assertEquals(ReadingPlanStatus::Expired, $plan->fresh()->status);
+        // 採点フィードバック反映：期日当日は失効させない
+        $this->assertEquals(ReadingPlanStatus::InProgress, $plan->fresh()->status);
     }
 
     #[TestDox('既に期限切れの計画にも、期日3日後のタイミングでリマインダー通知が送られる')]
@@ -81,11 +83,27 @@ class ProcessReadingPlansCommandTest extends TestCase
         $this->assertDatabaseCount('notifications', 1);
     }
 
-    #[TestDox('期日当日の進行中の計画は期限切れになる')]
-    public function test_expires_plan_exactly_on_due_date(): void
+    // 差し替え対象②：以前は「期日当日ちょうどで期限切れになる」ことを検証していたが、
+    // 正しくは「期日当日は進行中のまま、翌日から期限切れになる」。
+    #[TestDox('期日当日の進行中の計画はまだ期限切れにならない')]
+    public function test_does_not_expire_plan_exactly_on_due_date(): void
     {
         $plan = ReadingPlan::factory()->create([
             'target_date' => Carbon::today(),
+            'status' => ReadingPlanStatus::InProgress,
+        ]);
+
+        $this->artisan('reading-plans:process');
+
+        $this->assertEquals(ReadingPlanStatus::InProgress, $plan->fresh()->status);
+    }
+
+    // 新規追加：期日の翌日から期限切れになることを確認する
+    #[TestDox('期日の翌日になった進行中の計画は期限切れになる')]
+    public function test_expires_plan_the_day_after_due_date(): void
+    {
+        $plan = ReadingPlan::factory()->create([
+            'target_date' => Carbon::yesterday(),
             'status' => ReadingPlanStatus::InProgress,
         ]);
 

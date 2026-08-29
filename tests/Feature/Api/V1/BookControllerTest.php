@@ -228,7 +228,8 @@ class BookControllerTest extends TestCase
         $response = $this->getJson('/api/v1/books/99999');
 
         $response->assertStatus(404);
-        $response->assertJsonStructure(['message']);
+        $response->assertJsonStructure(['error']);
+        $response->assertJson(['error' => '書籍が見つかりませんでした。']);
     }
 
     // ---------------------------------------------------------------
@@ -244,7 +245,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => 'APIから登録した本',
-            'author_name' => 'API太郎',
+            'author' => 'API太郎',
             'isbn' => '1234567890123',
             'published_date' => '2020-01-01',
             'description' => 'API経由での登録テスト',
@@ -258,7 +259,7 @@ class BookControllerTest extends TestCase
 
         $this->assertDatabaseHas('books', [
             'title' => 'APIから登録した本',
-            'author_name' => 'API太郎',
+            'author' => 'API太郎',
             'isbn' => '1234567890123',
             'user_id' => $user->id, // トークンの持ち主が自動的に登録者になる
         ]);
@@ -271,7 +272,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => 'テスト書籍',
-            'author_name' => 'テスト太郎',
+            'author' => 'テスト太郎',
             'isbn' => '1234567890123',
             'published_date' => '2020-01-01',
             'genres' => [$genre->id],
@@ -292,7 +293,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => '',
-            'author_name' => 'API太郎',
+            'author' => 'API太郎',
             'isbn' => '1234567890123',
             'published_date' => '2020-01-01',
             'genres' => [$genre->id],
@@ -319,7 +320,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => '更新後タイトル',
-            'author_name' => $book->author,
+            'author' => $book->author,
             'isbn' => $book->isbn,
             'published_date' => $book->published_date->format('Y-m-d'),
             'genres' => [$genre->id],
@@ -346,7 +347,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => '不正な更新',
-            'author_name' => $book->author,
+            'author' => $book->author,
             'isbn' => $book->isbn,
             'published_date' => $book->published_date->format('Y-m-d'),
             'genres' => [$genre->id],
@@ -355,6 +356,7 @@ class BookControllerTest extends TestCase
         $response = $this->putJson("/api/v1/books/{$book->id}", $payload);
 
         $response->assertStatus(403);
+        $response->assertJsonStructure(['error']);
         $this->assertDatabaseMissing('books', ['title' => '不正な更新']);
     }
 
@@ -366,7 +368,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => '不正な更新',
-            'author_name' => $book->author,
+            'author' => $book->author,
             'isbn' => $book->isbn,
             'published_date' => $book->published_date->format('Y-m-d'),
             'genres' => [$genre->id],
@@ -386,7 +388,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => 'テスト',
-            'author_name' => 'テスト太郎',
+            'author' => 'テスト太郎',
             'isbn' => '1234567890123',
             'published_date' => '2020-01-01',
             'genres' => [$genre->id],
@@ -395,6 +397,8 @@ class BookControllerTest extends TestCase
         $response = $this->putJson('/api/v1/books/99999', $payload);
 
         $response->assertStatus(404);
+        $response->assertJsonStructure(['error']);
+        $response->assertJson(['error' => '書籍が見つかりませんでした。']);
     }
 
     #[TestDox('書籍更新APIは自分自身のISBNのまま更新しても一意性エラーにならない')]
@@ -407,7 +411,7 @@ class BookControllerTest extends TestCase
 
         $payload = [
             'title' => '更新後タイトル',
-            'author_name' => $book->author,
+            'author' => $book->author,
             'isbn' => '1234567890123',
             'published_date' => $book->published_date->format('Y-m-d'),
             'genres' => [$genre->id],
@@ -446,6 +450,7 @@ class BookControllerTest extends TestCase
         $response = $this->deleteJson("/api/v1/books/{$book->id}");
 
         $response->assertStatus(403);
+        $response->assertJsonStructure(['error']);
         $this->assertDatabaseHas('books', ['id' => $book->id]);
     }
 
@@ -469,6 +474,8 @@ class BookControllerTest extends TestCase
         $response = $this->deleteJson('/api/v1/books/99999');
 
         $response->assertStatus(404);
+        $response->assertJsonStructure(['error']);
+        $response->assertJson(['error' => '書籍が見つかりませんでした。']);
     }
 
     #[TestDox('書籍削除APIは関連するレビュー・お気に入り・ジャンル紐付けも連動して削除し、ジャンル自体は残す')]
@@ -491,5 +498,47 @@ class BookControllerTest extends TestCase
         $this->assertDatabaseMissing('book_genre', ['book_id' => $book->id]);
         $this->assertDatabaseMissing('favorites', ['book_id' => $book->id]);
         $this->assertDatabaseHas('genres', ['id' => $genre->id]);
+    }
+
+    #[TestDox('書籍一覧APIはsort=newest（デフォルト）で新しい順に並ぶ')]
+    public function test_book_index_sorts_by_newest_by_default(): void
+    {
+        $older = Book::factory()->create();
+        $newer = Book::factory()->create();
+
+        $response = $this->getJson('/api/v1/books?sort=newest');
+
+        $response->assertOk();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+
+        $this->assertTrue(array_search($newer->id, $ids) < array_search($older->id, $ids));
+    }
+
+    #[TestDox('書籍一覧APIはsortパラメータ未指定でも新しい順（デフォルト）で並ぶ')]
+    public function test_book_index_defaults_to_newest_when_sort_is_omitted(): void
+    {
+        $older = Book::factory()->create();
+        $newer = Book::factory()->create();
+
+        $response = $this->getJson('/api/v1/books'); // sortパラメータなし
+
+        $response->assertOk();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+
+        $this->assertTrue(array_search($newer->id, $ids) < array_search($older->id, $ids));
+    }
+
+    #[TestDox('書籍一覧APIはsort=oldestで古い順に並ぶ')]
+    public function test_book_index_sorts_by_oldest(): void
+    {
+        $older = Book::factory()->create();
+        $newer = Book::factory()->create();
+
+        $response = $this->getJson('/api/v1/books?sort=oldest');
+
+        $response->assertOk();
+        $ids = collect($response->json('data'))->pluck('id')->toArray();
+
+        $this->assertTrue(array_search($older->id, $ids) < array_search($newer->id, $ids));
     }
 }

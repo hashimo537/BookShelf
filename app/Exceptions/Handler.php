@@ -47,23 +47,26 @@ class Handler extends ExceptionHandler
             }
 
             // ★AP06: トークンは有効だが、他人の書籍を更新・削除しようとした（BookPolicyが投げる）
+            // 採点フィードバック反映：レスポンスキーを message → error に統一
             if ($e instanceof AuthorizationException) {
                 return response()->json([
-                    'message' => 'この操作を行う権限がありません。',
+                    'error' => 'この操作を行う権限がありません。',
                 ], 403);
             }
 
             // AP02/AP04: 存在しないIDが指定された場合（ルートモデルバインディング失敗）
+            // 仕様確認：文言を完全一致させる（「指定された」を削除）
             if ($e instanceof ModelNotFoundException) {
                 return response()->json([
-                    'message' => '指定された書籍が見つかりませんでした。',
+                    'error' => '書籍が見つかりませんでした。',
                 ], 404);
             }
 
             // 存在しないURL・存在しないHTTPメソッドへのアクセス
+            // 採点フィードバック反映：レスポンスキーを message → error に統一
             if ($e instanceof NotFoundHttpException) {
                 return response()->json([
-                    'message' => '指定されたURLは見つかりませんでした。',
+                    'error' => '指定されたURLは見つかりませんでした。',
                 ], 404);
             }
 

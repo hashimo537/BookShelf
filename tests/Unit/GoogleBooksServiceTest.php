@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Services\GoogleBooksService;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
@@ -113,6 +114,19 @@ class GoogleBooksServiceTest extends TestCase
 
         $service = new GoogleBooksService;
         $result = $service->searchByIsbn('4444444444444');
+
+        $this->assertNull($result);
+    }
+
+    #[TestDox('APIへの接続自体に失敗した場合もnullを返す（例外を投げない）')]
+    public function test_search_by_isbn_returns_null_when_connection_fails(): void
+    {
+        Http::fake(function () {
+            throw new ConnectionException('Connection timed out');
+        });
+
+        $service = new GoogleBooksService;
+        $result = $service->searchByIsbn('5555555555555');
 
         $this->assertNull($result);
     }

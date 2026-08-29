@@ -12,6 +12,9 @@ class ReportController extends Controller
     /**
      * マイ読書レポート（GET /reports）
      * 認証必須。ログインユーザー自身のレビューを基に4種類の集計を表示する。
+     *
+     * @param  Request  $request  現在のHTTPリクエスト（認証済みユーザーの取得に使用）
+     * @return View 基本統計・評価分布・高評価書籍TOP5・ジャンル別評価TOP5を渡すビュー
      */
     public function index(Request $request): View
     {
@@ -32,11 +35,13 @@ class ReportController extends Controller
 
     /**
      * 基本サマリー（総レビュー数・読了冊数・平均評価）を集計する。
+     * 読了冊数は「レビューした書籍のユニーク数」を代理指標として使用する。
+     * 平均評価はレビューが1件も無い場合は0.0を返す（Blade側で「-」表示に変換される）。
      *
-     * @param  Collection<int, Review>  $reviews
+     * @param  Collection<int, Review>  $reviews  集計対象のレビュー一覧（book・genresをEagerLoad済み）
      * @return array{total_reviews: int, books_read: int, average_rating: float}
      */
-    private function buildSummary($reviews): array
+    private function buildSummary(Collection $reviews): array
     {
         return [
             'total_reviews' => $reviews->count(),
@@ -47,30 +52,30 @@ class ReportController extends Controller
 
     /**
      * 評価1〜5ごとのレビュー件数を集計する。
-     * インデックス0〜4がそれぞれ評価1〜5に対応する（Blade側で $index + 1 として使用）。
+     * 返り値のインデックス0〜4がそれぞれ評価1〜5に対応する（Blade側で $index + 1 として使用）。
      *
-     * @param  Collection<int, Review>  $reviews
-     * @return Collection<int, int>
+     * @param  Collection<int, Review>  $reviews  集計対象のレビュー一覧
+     * @return Collection<int, int> インデックス0〜4に評価1〜5それぞれの件数を格納したコレクション
      */
-    private function buildRatingDistribution($reviews)
+    private function buildRatingDistribution(Collection $reviews): Collection
     {
         return collect(range(1, 5))
-            ->map(fn (int $rating) => $reviews->where('rating', $rating)->count());
+            ->map(fn (int $rating): int => $reviews->where('rating', $rating)->count());
     }
 
     /**
-     * 4以上の評価を付けた書籍を上位5件抽出する。
+     * 4以上の評価を付けた書籍を、評価が高い順に上位5件抽出する。
      *
-     * @param  Collection<int, Review>  $reviews
+     * @param  Collection<int, Review>  $reviews  集計対象のレビュー一覧（bookをEagerLoad済み）
      * @return array<int, array{id: int, title: string, author: string, rating: int}>
      */
-    private function buildTopRatedBooks($reviews): array
+    private function buildTopRatedBooks(Collection $reviews): array
     {
         return $reviews
             ->where('rating', '>=', 4)
             ->sortByDesc('rating')
             ->take(5)
-            ->map(fn ($review) => [
+            ->map(fn (Review $review): array => [
                 'id' => $review->book->id,
                 'title' => $review->book->title,
                 'author' => $review->book->author,
@@ -82,20 +87,20 @@ class ReportController extends Controller
 
     /**
      * ジャンルごとの平均評価・レビュー件数を集計し、平均評価が高い順に上位5件を返す。
-     * 1件のレビューは、紐づく全ジャンルの集計対象に含まれる（多対多のため）。
+     * 1件のレビューは、紐づく全ジャンルの集計対象に含まれる（書籍とジャンルは多対多のため）。
      *
-     * @param  Collection<int, Review>  $reviews
+     * @param  Collection<int, Review>  $reviews  集計対象のレビュー一覧（book.genresをEagerLoad済み）
      * @return array<int, array{id: int, name: string, count: int, average_rating: float}>
      */
-    private function buildGenreRatings($reviews): array
+    private function buildGenreRatings(Collection $reviews): array
     {
         return $reviews
-            ->flatMap(fn ($review) => $review->book->genres->map(fn ($genre) => [
+            ->flatMap(fn (Review $review): Collection => $review->book->genres->map(fn ($genre): array => [
                 'genre' => $genre,
                 'rating' => $review->rating,
             ]))
-            ->groupBy(fn ($item) => $item['genre']->id)
-            ->map(function ($items) {
+            ->groupBy(fn (array $item) => $item['genre']->id)
+            ->map(function (Collection $items): array {
                 $genre = $items->first()['genre'];
                 $ratings = $items->pluck('rating');
 
