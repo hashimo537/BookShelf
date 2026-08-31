@@ -98,6 +98,14 @@ docker run --rm \
 # 4. Sailを起動
 ./vendor/bin/sail up -d
 
+> **エイリアスの設定（推奨）**
+   > 
+   > 毎回 `./vendor/bin/sail` と入力するのは手間なので、エイリアスを設定すると便利です。
+   > 
+   > ```bash
+   > alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
+   > ```
+
 # 5. アプリケーションキーを生成
 sail artisan key:generate
 
@@ -329,8 +337,8 @@ sail artisan migrate:fresh --seed
 title: "BookShelf"
 ---
 erDiagram
-    users ||--o{ books : ""
-    users ||--o{ favorites : ""
+    users ||--o{ books : "登録"
+    users ||--o{ favorites : "お気に入り"
     books ||--o{ favorites : ""
 
     users {
