@@ -22,7 +22,7 @@ class UpdateBookRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             // ★応用：ISBN検索での自動補完を想定し、著者名は任意入力に変更
-            'author' => ['nullable', 'string', 'max:255'],
+            'author' => ['required', 'string', 'max:255'],
             'isbn' => [
                 'required',
                 'digits:13',
@@ -42,6 +42,7 @@ class UpdateBookRequest extends FormRequest
         return [
             'title.required' => 'タイトルは必須です。',
             'isbn.required' => 'ISBNは必須です。',
+            'author.required' => '著者名は必須です。',
             'genres.required' => 'ジャンルを1つ以上選択してください。',
             'genres.min' => 'ジャンルを1つ以上選択してください。',
 
